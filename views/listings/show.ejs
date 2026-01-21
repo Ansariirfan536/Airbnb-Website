@@ -13,6 +13,13 @@
            <p> &#8377;<%= listing.price.toLocaleString("en-IN") %></p>
            <p>  <%= listing.location %></p>
             <p><%= listing.country %></p>
+
+            <!-- //////// -->
+                        <% if(currUser && !listing.owner._id.equals(currUser._id)) { %>
+                            <form method="POST" action="/cart/add/<%= listing._id %>" style="display:inline">
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </form>
+                        <% } %>
         </div>
 </div>
   
@@ -61,7 +68,8 @@
     <textarea name="review[comment]" id="comment" cols="30" 
     rows="5" class="form-control" required></textarea>
 <div class="invalid-feedback">Please add some comments for review</div><br>
-<button class="btn btn-outline-dark">Submit</button>
+<button class="btn btn-outline-dark" loading variant="outlined" loadingPosition="end">Submit</button>
+  </Button>
 </div>
 
         </form>
@@ -81,7 +89,7 @@
                 
           
           <form class="mb-3" method="POST" action="/listings/<%=listing._id%>/reviews/<%= review._id%>?_method=DELETE">
-            <button class="btn btn-sm btn-dark">Delete</button>
+            <button class="btn btn-sm btn-dark ">Delete</button>
           </form>
 
         </div>
@@ -90,4 +98,5 @@
 
     </div>
     </div>
+    
     

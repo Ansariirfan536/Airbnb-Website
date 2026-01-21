@@ -1,28 +1,58 @@
-<% layout("/layouts/boilerplate")%>
-<div class="row mt-2">
-    <h1 class="offset-2">Login</h1>
-    
-   <div class="col-8 offset-2">
-    <form action="/login" method="POST" class="needs-validation" novalidate>
-        <div class="mb-3">
-            <lable for="username" class="form-label" required>Username</lable>
-            
-            <input name="username"
-            id="username"
-            type="text" 
-            class="form-control" 
-            required>
-        
-            <lable for="password" class="form-label" required>Password</lable>
-            
-            <input name="password"
-            id="password"
-            type="password" 
-            class="form-control" 
-            required>
-        </div>
-        <button class="btn btn-success">Login</button>
+<!-- <% layout("/layouts/boilerplate")%>
+    <div class="row mt-2">
+        <h1 class="offset-2">Login</h1>
 
-    </form>
-       </div>
- </div>
+        <div class="col-8 offset-2">
+            <form action="/login" method="POST" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <lable for="username" class="form-label" required>Username</lable>
+
+                    <input name="username" id="username" type="text" class="form-control" required>
+
+                    <lable for="password" class="form-label">Password</lable>
+
+                    <input name="password" id="password" type="password" class="form-control" required>
+                   
+
+
+                </div>
+                <button class="btn btn-success">Login</button>
+
+            </form>
+        </div>
+    </div> -->
+
+
+<% layout("/layouts/boilerplate")%>
+<div class="login-page">
+    <div class="row mt-2">
+        <h1 class="offset-2">Login</h1>
+
+        <div class="col-8 offset-2">
+            <form action="/login" method="POST" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for="username" class="form-label" required>Username</label>
+                    <input name="username" id="username" type="text" class="form-control" required>
+
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <input name="password" id="password" type="password" class="form-control" required>
+                        <button type="button" class="btn btn-outline-dark" onclick="togglePassword()" style="background-color: rgba(112, 177, 188, 0.651) ">👁</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success" id="loginBtn">Login</button>
+               
+            </form>
+        </div>
+    </div></div>
+
+    <script>
+        function togglePassword() {
+            let passwordInput = document.getElementById("password");
+            passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+        }
+
+
+      
+    </script>
+

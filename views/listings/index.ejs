@@ -1,12 +1,8 @@
-<% layout("/layouts/boilerplate")%>
+  <% layout("/layouts/boilerplate")%>
 
 
 <body>
-    <!-- <h3>All Listings</h3> -->
-
-    <!-- <form method="GET" action="/listings/new">
-        <button>Create New listings</button>
-    </form> -->
+    
 
     <style>
 #filters{
@@ -109,21 +105,58 @@
 
 <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
   <% for (let listing of allListings){ %>
-    <a href="/listings/<%= listing._id%>" class="listing-link">
-      <div class="card col listing-card" >
-        <img src="<%= listing.image.url%>" class="card-img-top" alt="listing_image" 
-        style="height: 20rem" />
-        <div class="card-img-overlay"></div>
-        <div class="card-body">
-          <p class="card-text"> 
-           <b> <%= listing.title%></b><br />
-           &#8377;<%= listing.price.toLocaleString("en-IN") %>/night
-      <i class="tax-info"> &nbsp; &nbsp;+18% GST</i>
+    <div class="col mb-4">
+      <div class="card listing-card h-100">
+        <a href="/listings/<%= listing._id%>">
+          <img src="<%= listing.image.url%>" class="card-img-top" alt="listing_image" style="height: 20rem; object-fit:cover;" />
+        </a>
+        <div class="card-body d-flex flex-column">
+          <p class="card-text mb-0"> 
+            <b><%= listing.title%></b><br />
+            &#8377;<%= listing.price.toLocaleString("en-IN") %>/night
+            <i class="tax-info"> &nbsp; &nbsp;+18% GST</i>
           </p>
+          <div class=" mb-2 position-relative">
+              <form method="POST" action="#" class="fav-form" data-add="/cart/add/<%= listing._id %>" data-remove="/cart/remove/<%= listing._id %>" style="display:inline">
+                <% const isLiked = (typeof cart !== 'undefined' && cart && Array.isArray(cart) ? cart : []).some(i => i.id === String(listing._id)); %>
+                <button type="button" aria-label="Like" class="fav-btn <%= isLiked ? 'liked' : '' %>">
+                  <i class="fa-solid fa-heart"></i>
+                  &nbsp;&nbsp;&nbsp;&nbsp;
+                </button>
+              </form>
+              <!-- <a href="/listings/<%= listing._id%>" class="btn btn-outline-secondary btn-sm ms-2">View</a> -->
+            </div>
         </div>
       </div>
-      <%}%>  
-  </div>
+    </div>
+  <% } %>
+</div>
+
+  <style>
+    .listing-card { position: relative; }
+    .fav-form{ position: absolute; bottom: 0px; right: 8px; z-index: 10; }
+    .fav-btn{ background: rgba(0,0,0,0.35); border: none; color: #fff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .fav-btn .fa-heart{ color:wheat  }
+    .fav-btn.liked{ background: rgba(87,0,128) }
+    .fav-btn.liked .fa-heart{ color: #5b0202; }
+    .fav-btn:focus{ outline: none; box-shadow: 0 0 0 2px rgba(226,85,85,0.25); }
+    .fav-btn:hover{ background-color: rgb(0, 128, 11);}
+  </style>
+
+  <script>
+    document.addEventListener('click', function(e){
+      const btn = e.target.closest('.fav-btn');
+      if(!btn) return;
+      const form = btn.closest('.fav-form');
+      if(!form) return;
+      // toggle visual state immediately
+      const likedNow = btn.classList.toggle('liked');
+      // set form action based on state
+      form.action = likedNow ? form.dataset.add : form.dataset.remove;
+      // submit form to persist change
+      form.submit();
+    });
+  </script>
 
 
   <script>
@@ -138,6 +171,6 @@
        }
      }
     })
-  </script>
+  </script>  
 
-
+  

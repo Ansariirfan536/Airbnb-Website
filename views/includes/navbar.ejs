@@ -1,4 +1,4 @@
-<style>
+ <style>
   .search-btn{
     background-color: #fe424d;
     color: #fff;
@@ -51,14 +51,24 @@
         <% if(!currUser){ %>
           <a class="nav-link"  href="/signup"><b>Sign up</b></a>
           <a class="nav-link" href="/login"><b>Log in</b></a>
-        <%}%>
+        <% } %>
         <% if(currUser){%>
           <a class="nav-link" href="/logout"><b>Log out</b></a>
         <%}%>
-        
+        <!-- ///////// -->
+        <a class="nav-link position-relative" href="/cart">
+          <i class="fa-solid fa-shopping-cart"></i>
+          Cart
+          <span class="badge bg-danger position-absolute" style="top:0;right:0;transform:translate(50%,-50%);">
+            <%= cartCount || 0 %>
+          </span>
+        </a>
       
-      </div>
-
+        </div>
     </div>
   </div>
 </nav>
+ 
+
+
+ 

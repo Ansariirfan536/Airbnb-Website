@@ -20,6 +20,7 @@ const User=require("./models/user.js");
 const listingRouter=require("./routes/listing.js");
 const reviewRouter=require("./routes/review.js");
 const userRouter=require("./routes/user.js");
+const cartRouter=require("./routes/cart.js");
 
 
 //const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
@@ -90,7 +91,46 @@ app.use((req,res,next)=>{
   res.locals.success=req.flash("success");
   res.locals.error=req.flash("error");
   res.locals.currUser=req.user;
-  next();
+  // Sync session cart with persistent user cart when logged in
+  (async function syncCart(){
+    try{
+      if(req.user){
+        const sessionCart = req.session.cart || [];
+        const userCart = (req.user.cart && Array.isArray(req.user.cart)) ? req.user.cart : [];
+        // merge sessionCart and userCart by id, summing qtys
+        const map = new Map();
+        sessionCart.concat(userCart).forEach(item => {
+          if(!item || !item.id) return;
+          const existing = map.get(item.id);
+          const qty = item.qty ? Number(item.qty) : 1;
+          if(existing){
+            existing.qty = (existing.qty || 0) + qty;
+          } else {
+            map.set(item.id, { id: item.id, title: item.title, price: item.price, image: item.image, qty });
+          }
+        });
+        const merged = Array.from(map.values());
+        // update session
+        req.session.cart = merged;
+        res.locals.cartCount = merged.length;
+        res.locals.cart = merged;
+        // persist to user if different
+        const userCartJson = JSON.stringify(userCart || []);
+        const mergedJson = JSON.stringify(merged || []);
+        if(mergedJson !== userCartJson){
+          const updated = await User.findByIdAndUpdate(req.user._id, { cart: merged }, { new: true });
+          // update req.user reference
+          req.user = updated;
+        }
+      } else {
+        res.locals.cart = req.session.cart || [];
+        res.locals.cartCount = (req.session && req.session.cart) ? req.session.cart.length : 0;
+      }
+      next();
+    }catch(e){
+      next(e);
+    }
+  })();
 });
 
 
@@ -106,9 +146,11 @@ app.use((req,res,next)=>{
 // })
 
 
-   app.use("/listings", listingRouter);
-   app.use("/listings/:id/reviews",reviewRouter);
-   app.use("/",userRouter);
+  app.use("/listings", listingRouter);
+  app.use("/listings/:id/reviews",reviewRouter);
+  // Mount cart before the catch-all user router so /cart routes are reachable
+  app.use("/cart", cartRouter);
+  app.use("/",userRouter);
 
 
   
