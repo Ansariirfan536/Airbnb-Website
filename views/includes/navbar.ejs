@@ -18,6 +18,15 @@
     padding: 0.5rem 3rem 0.5rem 3rem;
     font-size: 1rem;
   }
+  .nav-link-a{
+      background-color: #fe424d;
+       border-radius: 25px;
+    padding: 0.5rem 3rem 0.5rem 3rem;
+    font-size: 1rem;
+    text-decoration: none;
+    color: black;
+    font-weight: 600;
+  }
 </style>
 
 
@@ -33,21 +42,39 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         
-        <a class="nav-link" href="/listings">Explore</a>
+        <a class="nav-link" href="/listings">Explore  </a>
       </div>
 
       <div class="navbar-nav ms-auto">
         
-        <form class="d-flex" role="search">
-          <input class="form-control me-2 search-inp" type="search" placeholder="Search Destinations" 
-         >
-          <button class="btn search-btn " type="submit"><i class="fa-solid fa-magnifying-glass"></i>Search
+        <form id="nav-search-form" class="d-flex" role="search" method="GET" action="/listings">
+          
+          <!-- <input id=" nav-search-input" name="country" class="form-control me-2 search-inp" type="search" placeholder=" " value="<%= typeof country !== 'undefined' ? country : '' %>"> -->
+
+           <input type="search" id="nav-search-input" name="country" class="form-control me-2 search-inp" placeholder="" value="<%= typeof country !== 'undefined' ? country : '' %>">
+
+
+          <button id="nav-search-button" class="btn search-btn " type="submit"><i class="fa-solid fa-magnifying-glass"></i>Search
           </button>
         </form>
+        <script>
+          (function(){
+            const form = document.getElementById('nav-search-form');
+            const input = document.getElementById('nav-search-input');
+            if(!form || !input) return;
+            form.addEventListener('submit', function(e){
+              // ensure navigation occurs even if other scripts intercept
+              e.preventDefault();
+              const q = (input.value || '').trim();
+              const url = '/listings' + (q ? ('?country=' + encodeURIComponent(q)) : '');
+              window.location.href = url;
+            });
+          })();
+        </script>
       </div>
 
       <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="/listings/new">Airbnb your home</a>
+        <a class="nav-link-a" href="/listings/new">Airbnb your home</a>
         <% if(!currUser){ %>
           <a class="nav-link"  href="/signup"><b>Sign up</b></a>
           <a class="nav-link" href="/login"><b>Log in</b></a>

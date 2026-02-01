@@ -15,11 +15,18 @@
             <p><%= listing.country %></p>
 
             <!-- //////// -->
-                        <% if(currUser && !listing.owner._id.equals(currUser._id)) { %>
+            <!-- <% if(currUser && !listing.owner._id.equals(currUser._id)) { %>
                             <form method="POST" action="/cart/add/<%= listing._id %>" style="display:inline">
                                 <button class="btn btn-primary">Add to Cart</button>
                             </form>
-                        <% } %>
+                        <% } %> -->
+
+
+                        
+                <form method="POST" action="/cart/add/<%= listing._id %>" style="display:inline">
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </form>
+                
         </div>
 </div>
   
@@ -86,7 +93,7 @@
             </div>
                 <p class="card-text"> <%= review.comment %></p>
                 <p class="card-text"><%= review.rating %>  &#9733; </p>
-                
+
           
           <form class="mb-3" method="POST" action="/listings/<%=listing._id%>/reviews/<%= review._id%>?_method=DELETE">
             <button class="btn btn-sm btn-dark ">Delete</button>

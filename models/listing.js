@@ -26,7 +26,20 @@ image:{
   owner:{
     type: Schema.Types.ObjectId,
     ref:"User",
+  },
+  
+
+   status: {
+    type: String,
+    enum: ["active", "sold", "expired"],
+    default: "active"
+  },
+  expiresAt: {
+    type: Date,
+    default: () => Date.now() + 30*24*60*60*1000 // 30 days validity
   }
+
+
 });
 
 listingSchema.post("findOneAndDelete",async(listing)=>{

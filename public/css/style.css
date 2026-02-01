@@ -15,7 +15,8 @@ body{
     color: white;
 }
 .login-page {
-    background-image: url('https://plus.unsplash.com/premium_photo-1719799236836-9353b88e710c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDUyfEZ6bzN6dU9ITjZ3fHxlbnwwfHx8fHw%3D'); /* Replace with the actual image URL */
+     background-image: url('https://plus.unsplash.com/premium_photo-1719799236836-9353b88e710c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDUyfEZ6bzN6dU9ITjZ3fHxlbnwwfHx8fHw%3D'); /*Replace with the actual image URL*/ 
+   
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -106,10 +107,10 @@ flex: 1;
 }
 /* Card Effect */
 .card-img-overlay{
-    opacity: 0;
+    opacity: 1;
 }
 .card-img-overlay:hover{
-    opacity: 0.2;
+    opacity: 0.5;
     background-color: white;
 }
 .add-btn{
@@ -137,3 +138,6 @@ flex: 1;
  background-color: #aa041d;
   color: rgb(255, 255, 255);
 }
+
+/* https://drive.google.com/file/d/1jI6lDsqoLrJqzJTJKGhrjVKWaAC_kbp8/view?usp=drivesdk */
+

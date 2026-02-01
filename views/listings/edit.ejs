@@ -45,27 +45,31 @@
       <div class="invalid-feedback">Price Should be ⚠️valid</div>
     </div>
 
-     <div class="mb-3 col-md-8">
-      <lable for="country" class="form-label">Country</lable>
-     <input name="listing[country]"
-      value="<%= listing.country %>"
-      type="text" class="form-control" required/>
-      <div class="invalid-feedback"> Should be needed ⚠️valid Country name</div>
-     </div>
-    </div>
-
-     <div class="mb-3">
+    <div class="mb-3 col-md-8">
       <lable for="location" class="form-label">Location</lable>
       <input
       name="listing[location]"
       value="<%= listing.location %>"
       type="text" class="form-control" required
     />
+    </div>
+
+    
+     <div class="mb-3 ">
+      <lable for="country" class="form-label">Country</lable>
+     <input name="listing[country]"
+      value="<%= listing.country %>"
+      type="text" class="form-control" required/>
+      <div class="invalid-feedback"> Should be needed ⚠️valid Country name</div>
+     </div>
     <div class="invalid-feedback"> Please should a ⚠️valid location</div>
      </div>
       
       <button class="btn btn-dark edit-btn mt-3 offset-3">Edit</button>
     </form>
+
+
+    
  
 </div>
 </div>
