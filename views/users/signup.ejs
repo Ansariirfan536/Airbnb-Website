@@ -12,6 +12,8 @@
             id="username"
             type="text" 
             class="form-control" 
+            placeholder="userName"
+           autocomplete="new-password" 
             required>
             <div class="valid-feedback"> looks goods!</div>
 
@@ -21,6 +23,8 @@
             id="email"
             type="email" 
             class="form-control" 
+            placeholder="Irfan@gmail.com"
+            autocomplete="off" 
             required>
 
             <lable for="password" class="form-label" required>Password</lable>
@@ -36,13 +40,21 @@
         </div> ORRRRR -->
 
        <div class="input-group">
-                        <input name="password" id="password" type="password" class="form-control" required>
+                        <input name="password" id="password" type="password" class="form-control" placeholder="passWord" 
+                            autocomplete="new-password"  
+
+                        required>
                         <button type="button" class="btn btn-outline-dark" onclick="togglePassword()" style="background-color: rgba(112, 177, 188, 0.651) ">👁</button>
                     </div>
             </div>
 
-        <button class="btn btn-success">SignUp</button>
-
+            <div >
+               
+                     <!-- <button class="btn btn-success"> alert("Hello Welcome!") SignUp</button> -->
+                   <button class="  btn btn-success">SignUp</button>
+                
+            </div>
+       
     </form>
        </div>
  </div></div>

@@ -32,11 +32,16 @@
             <form action="/login" method="POST" class="needs-validation" novalidate>
                 <div class="mb-3">
                     <label for="username" class="form-label" required>Username</label>
-                    <input name="username" id="username" type="text" class="form-control" required>
+                    <input name="username" id="username" type="text" class="form-control" 
+                    placeholder="UserName"  autocomplete="new-password"  
+                    required>
 
                     <label for="password" class="form-label">Password</label>
                     <div class="input-group">
-                        <input name="password" id="password" type="password" class="form-control" required>
+                        <input name="password" id="password" type="password" class="form-control"
+                        placeholder="Password"
+                         autocomplete="new-password" 
+                         required>
                         <button type="button" class="btn btn-outline-dark" onclick="togglePassword()" style="background-color: rgba(112, 177, 188, 0.651) ">👁</button>
                     </div>
                 </div>
