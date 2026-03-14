@@ -1,3 +1,7 @@
+require("dotenv").config(); 
+const dns = require('node:dns');
+dns.setDefaultResultOrder('ipv4first');
+
 if(process.env.NODE_ENV !="production"){
   require("dotenv").config();
 }
@@ -56,9 +60,9 @@ const store=mongoStore.create({
   touchAfter:1*3600,
 });
 
-store.on("error",()=>{
-  console.log("ERROR in Mongo Session Store",err)
-})
+store.on("error", (err) => { 
+  console.log("ERROR in Mongo Session Store", err);
+});
 
 const sessionOptions={
   store,
