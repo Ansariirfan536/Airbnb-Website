@@ -1,97 +1,97 @@
-require("dotenv").config(); 
-const dns = require('node:dns');
-dns.setDefaultResultOrder('ipv4first');
+// require("dotenv").config(); 
+// const dns = require('node:dns');
+// dns.setDefaultResultOrder('ipv4first');
 
-if(process.env.NODE_ENV !="production"){
-  require("dotenv").config();
-}
-
-
-const express = require("express");
-const app = express();
-const mongoose = require("mongoose");
-const path = require("path");
-const methodOverride = require("method-override");
-const ejsMate=require("ejs-mate");
-const ExpressError=require("./utils/ExpressError.js");
-const session=require("express-session");
-const mongoStore=require("connect-mongo")
-const flash=require("connect-flash");
-const passport=require("passport");
-const LocalStrategy=require("passport-local");
-const User=require("./models/user.js");
-
-const listingRouter=require("./routes/listing.js");
-const reviewRouter=require("./routes/review.js");
-const userRouter=require("./routes/user.js");
-const cartRouter=require("./routes/cart.js");
+// if(process.env.NODE_ENV !="production"){
+//   require("dotenv").config();
+// }
 
 
-//const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
-const dbUrl=process.env.ATLASDB_URL;
+// const express = require("express");
+// const app = express();
+// const mongoose = require("mongoose");
+// const path = require("path");
+// const methodOverride = require("method-override");
+// const ejsMate=require("ejs-mate");
+// const ExpressError=require("./utils/ExpressError.js");
+// const session=require("express-session");
+// const mongoStore=require("connect-mongo")
+// const flash=require("connect-flash");
+// const passport=require("passport");
+// const LocalStrategy=require("passport-local");
+// const User=require("./models/user.js");
+
+// const listingRouter=require("./routes/listing.js");
+// const reviewRouter=require("./routes/review.js");
+// const userRouter=require("./routes/user.js");
+// const cartRouter=require("./routes/cart.js");
 
 
-main()
-  .then(() => {
-    console.log("connected to DB");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-
-async function main() {
-  //await mongoose.connect(MONGO_URL);
-  await mongoose.connect(dbUrl);
-}
-
-app.set("view engine","ejs");
-app.set("views",path.join(__dirname,"views"));
-app.use(express.urlencoded({extended:true}));
-app.use(methodOverride("_method"));
-app.engine("ejs",ejsMate);
-app.use(express.static(path.join(__dirname,"public")));
+// //const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+// const dbUrl=process.env.ATLASDB_URL;
 
 
-const store=mongoStore.create({
-  mongoUrl:dbUrl,
-  crypto:{
-    secret:process.env.SECRET,
-  },
-  touchAfter:1*3600,
-});
+// main()
+//   .then(() => {
+//     console.log("connected to DB");
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
 
-store.on("error", (err) => { 
-  console.log("ERROR in Mongo Session Store", err);
-});
+// async function main() {
+//   //await mongoose.connect(MONGO_URL);
+//   await mongoose.connect(dbUrl);
+// }
 
-const sessionOptions={
-  store,
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized:true,
-  cookie:{
-    expires:Date.now()+7*24*60*60*1000,
-    maxAge:7*24*60*60*1000,
-    httpOnly:true,
-    secure:true,
-    sameSite:'none',
-  }
-};
+// app.set("view engine","ejs");
+// app.set("views",path.join(__dirname,"views"));
+// app.use(express.urlencoded({extended:true}));
+// app.use(methodOverride("_method"));
+// app.engine("ejs",ejsMate);
+// app.use(express.static(path.join(__dirname,"public")));
 
-// app.get("/", (req, res) => {
-//   res.send("Hi, I am root");
+
+// const store=mongoStore.create({
+//   mongoUrl:dbUrl,
+//   crypto:{
+//     secret:process.env.SECRET,
+//   },
+//   touchAfter:1*3600,
 // });
-app.set("trust proxy",1);
-app.use(session(sessionOptions));
-app.use(flash());
 
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
+// store.on("error", (err) => { 
+//   console.log("ERROR in Mongo Session Store", err);
+// });
+
+// const sessionOptions={
+//   store,
+//   secret: process.env.SECRET,
+//   resave: false,
+//   saveUninitialized:true,
+//   cookie:{
+//     expires:Date.now()+7*24*60*60*1000,
+//     maxAge:7*24*60*60*1000,
+//     httpOnly:true,
+//     secure:true,
+//     sameSite:'none',
+//   }
+// };
+
+// // app.get("/", (req, res) => {
+// //   res.send("Hi, I am root");
+// // });
+// app.set("trust proxy",1);
+// app.use(session(sessionOptions));
+// app.use(flash());
+
+// app.use(passport.initialize());
+// app.use(passport.session());
+// passport.use(new LocalStrategy(User.authenticate()));
 
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
 // app.use((req,res,next)=>{
 //   res.locals.success=req.flash("success");
@@ -130,8 +130,8 @@ passport.deserializeUser(User.deserializeUser());
 //           req.user = updated;
 //         }
 //       } else {
-//         res.locals.cart = req.session.cart || [];
-//         res.locals.cartCount = (req.session && req.session.cart) ? req.session.cart.length : 0;
+//           res.locals.cart = (req.session && req.session.cart) ? req.session.cart : [];
+//     res.locals.cartCount = (req.session && req.session.cart) ? req.session.cart.length : 0
 //       }
 //       next();
 //     }catch(e){
@@ -149,89 +149,205 @@ passport.deserializeUser(User.deserializeUser());
 
 
 
-app.use(async (req, res, next) => {
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    res.locals.currUser = req.user;
-
-    if (req.user) {
-        try {
-            const userCart = (req.user && Array.isArray(req.user.cart)) ? req.user.cart : [];
-            const sessionCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
-
-            const map = new Map();
-            [...sessionCart, ...userCart].forEach(item => {
-                if (!item || !item.id) return;
-                const existing = map.get(item.id);
-                const qty = item.qty ? Number(item.qty) : 1;
-                if (existing) {
-                    existing.qty = (existing.qty || 0) + qty;
-                } else {
-                    map.set(item.id, { ...item, qty: qty });
-                }
-            });
-
-            const merged = Array.from(map.values());
-            req.session.cart = merged;
-            res.locals.cartCount = merged.length;
-            res.locals.cart = merged;
-
-            if (JSON.stringify(userCart) !== JSON.stringify(merged)) {
-                await User.findByIdAndUpdate(req.user._id, { cart: merged });
-                req.user.cart = merged;
-            }
-        } catch (e) {
-            console.error("Cart Sync Error:", e);
-        }
-    } else {
-        res.locals.cartCount = (req.session && req.session.cart) ? req.session.cart.length : 0;
-    }
-
-    next(); 
-});
 
 
 
+// ///////////Demo 
+// // app.get("/demouser",async(req,res)=>{
+// //   let fakeUser=new User({
+// //     email:"student@gmail.com",
+// //     username:"student",
+// //     age:18
+// //   });
+// //  let registerdUser=await User.register(fakeUser,"irfan");
+// //  res.send(registerdUser);
+// // })
 
 
-
-
-
-
-
-
-///////////Demo 
-// app.get("/demouser",async(req,res)=>{
-//   let fakeUser=new User({
-//     email:"student@gmail.com",
-//     username:"student",
-//     age:18
-//   });
-//  let registerdUser=await User.register(fakeUser,"irfan");
-//  res.send(registerdUser);
-// })
-
-
-  app.use("/listings", listingRouter);
-  app.use("/listings/:id/reviews",reviewRouter);
-  // Mount cart before the catch-all user router so /cart routes are reachable
-  app.use("/cart", cartRouter);
-  app.use("/",userRouter);
+//   app.use("/listings", listingRouter);
+//   app.use("/listings/:id/reviews",reviewRouter);
+//   // Mount cart before the catch-all user router so /cart routes are reachable
+//   app.use("/cart", cartRouter);
+//   app.use("/",userRouter);
 
 
   
-app.all("*",(req,res,next)=>{
-  next(new ExpressError(404,"Page Not Found!"));
-});
+// app.all("*",(req,res,next)=>{
+//   next(new ExpressError(404,"Page Not Found!"));
+// });
 
     
-app.use((err,req,res,next)=>{
- let {statusCode=500, message ="Something went wrong!!"}=err;
-//res.status(statusCode).send(message);
-res.status(statusCode).render("error.ejs",{message});
+// app.use((err,req,res,next)=>{
+//  let {statusCode=500, message ="Something went wrong!!"}=err;
+// //res.status(statusCode).send(message);
+// res.status(statusCode).render("error.ejs",{message});
+// });
+
+
+//     app.listen(8080, () => {
+//       console.log("server is listening to port 8080");
+//     });
+
+
+
+
+
+
+
+
+
+
+require("dotenv").config();
+const dns = require('node:dns');
+dns.setDefaultResultOrder('ipv4first');
+
+const express = require("express");
+const app = express();
+const mongoose = require("mongoose");
+const path = require("path");
+const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
+const ExpressError = require("./utils/ExpressError.js");
+const session = require("express-session");
+const mongoStore = require("connect-mongo");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
+
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
+const cartRouter = require("./routes/cart.js");
+
+const dbUrl = process.env.ATLASDB_URL;
+
+main()
+  .then(() => {
+    console.log("connected to DB");
+  })
+  .catch((err) => {
+    console.log("DB Connection Error:", err);
+  });
+
+async function main() {
+  await mongoose.connect(dbUrl);
+}
+
+app.engine("ejs", ejsMate);
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")));
+
+// CRITICAL FOR VERCEL: Set trust proxy BEFORE session
+app.set("trust proxy", 1);
+
+const store = mongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: process.env.SECRET,
+  },
+  touchAfter: 24 * 3600,
 });
 
+store.on("error", (err) => {
+  console.log("ERROR in Mongo Session Store", err);
+});
 
-    app.listen(8080, () => {
-      console.log("server is listening to port 8080");
-    });
+const sessionOptions = {
+  store,
+  secret: process.env.SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    // Adjusting for production (Vercel) vs Development
+    secure: process.env.NODE_ENV === "production", 
+    sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+  }
+};
+
+app.use(session(sessionOptions));
+app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// Global Middleware for Cart and User
+app.use(async (req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+
+  try {
+    if (req.user) {
+      // Ensure userCart is always an array to prevent .length or .concat errors
+      const userCart = Array.isArray(req.user.cart) ? req.user.cart : [];
+      const sessionCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
+
+      const map = new Map();
+      // Merge session cart into user cart
+      [...sessionCart, ...userCart].forEach(item => {
+        if (!item || !item.id) return;
+        const qty = item.qty ? Number(item.qty) : 1;
+        if (map.has(item.id)) {
+          map.get(item.id).qty += qty;
+        } else {
+          map.set(item.id, { ...item, qty });
+        }
+      });
+
+      const merged = Array.from(map.values());
+      
+      // Update local and session variables
+      req.session.cart = merged;
+      res.locals.cart = merged;
+      res.locals.cartCount = merged.length;
+
+      // Persist to DB only if changes occurred
+      if (JSON.stringify(merged) !== JSON.stringify(userCart)) {
+        const updated = await User.findByIdAndUpdate(req.user._id, { cart: merged }, { new: true });
+        req.user = updated;
+      }
+    } else {
+      // Guest User logic
+      const sessionCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
+      res.locals.cart = sessionCart;
+      res.locals.cartCount = sessionCart.length;
+    }
+    next();
+  } catch (err) {
+    console.error("Cart Middleware Error:", err);
+    next(err);
+  }
+});
+
+// Routes
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/cart", cartRouter);
+app.use("/", userRouter);
+
+// 404 Handler
+app.all("*", (req, res, next) => {
+  next(new ExpressError(404, "Page Not Found!"));
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  let { statusCode = 500, message = "Something went wrong!!" } = err;
+  res.status(statusCode).render("error.ejs", { message });
+});
+
+const PORT = 8080;
+app.listen(PORT, () => {
+  console.log(`server is listening to port ${PORT}`);
+});
