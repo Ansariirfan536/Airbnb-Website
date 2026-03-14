@@ -93,51 +93,111 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.use((req,res,next)=>{
-  res.locals.success=req.flash("success");
-  res.locals.error=req.flash("error");
-  res.locals.currUser=req.user;
-  // Sync session cart with persistent user cart when logged in
-  (async function syncCart(){
-    try{
-      if(req.user){
-        const sessionCart = req.session.cart || [];
-        const userCart = (req.user.cart && Array.isArray(req.user.cart)) ? req.user.cart : [];
-        // merge sessionCart and userCart by id, summing qtys
-        const map = new Map();
-        sessionCart.concat(userCart).forEach(item => {
-          if(!item || !item.id) return;
-          const existing = map.get(item.id);
-          const qty = item.qty ? Number(item.qty) : 1;
-          if(existing){
-            existing.qty = (existing.qty || 0) + qty;
-          } else {
-            map.set(item.id, { id: item.id, title: item.title, price: item.price, image: item.image, qty });
-          }
-        });
-        const merged = Array.from(map.values());
-        // update session
-        req.session.cart = merged;
-        res.locals.cartCount = merged.length;
-        res.locals.cart = merged;
-        // persist to user if different
-        const userCartJson = JSON.stringify(userCart || []);
-        const mergedJson = JSON.stringify(merged || []);
-        if(mergedJson !== userCartJson){
-          const updated = await User.findByIdAndUpdate(req.user._id, { cart: merged }, { new: true });
-          // update req.user reference
-          req.user = updated;
+// app.use((req,res,next)=>{
+//   res.locals.success=req.flash("success");
+//   res.locals.error=req.flash("error");
+//   res.locals.currUser=req.user;
+//   // Sync session cart with persistent user cart when logged in
+//   (async function syncCart(){
+//     try{
+//       if(req.user){
+//         // const sessionCart = req.session.cart || [];
+//         const userCart = (req.user && Array.isArray(req.user.cart)) ? req.user.cart : [];
+//         const sessionCart=(req.session && req.session.cart && Array.isArray(req.session.cart)) ?req.session.cart:[];
+//         // merge sessionCart and userCart by id, summing qtys
+//         const map = new Map();
+//         sessionCart.concat(userCart).forEach(item => {
+//           if(!item || !item.id) return;
+//           const existing = map.get(item.id);
+//           const qty = item.qty ? Number(item.qty) : 1;
+//           if(existing){
+//             existing.qty = (existing.qty || 0) + qty;
+//           } else {
+//             map.set(item.id, { id: item.id, title: item.title, price: item.price, image: item.image, qty });
+//           }
+//         });
+//         const merged = Array.from(map.values());
+//         // update session
+//         req.session.cart = merged;
+//         res.locals.cartCount = merged.length;
+//         res.locals.cart = merged;
+//         // persist to user if different
+//         const userCartJson = JSON.stringify(userCart || []);
+//         const mergedJson = JSON.stringify(merged || []);
+//         if(mergedJson !== userCartJson){
+//           const updated = await User.findByIdAndUpdate(req.user._id, { cart: merged }, { new: true });
+//           // update req.user reference
+//           req.user = updated;
+//         }
+//       } else {
+//         res.locals.cart = req.session.cart || [];
+//         res.locals.cartCount = (req.session && req.session.cart) ? req.session.cart.length : 0;
+//       }
+//       next();
+//     }catch(e){
+//       next(e);
+//     }
+//   })();
+// });
+
+
+
+
+
+
+
+
+
+
+app.use(async (req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    res.locals.currUser = req.user;
+
+    if (req.user) {
+        try {
+            const userCart = (req.user && Array.isArray(req.user.cart)) ? req.user.cart : [];
+            const sessionCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
+
+            const map = new Map();
+            [...sessionCart, ...userCart].forEach(item => {
+                if (!item || !item.id) return;
+                const existing = map.get(item.id);
+                const qty = item.qty ? Number(item.qty) : 1;
+                if (existing) {
+                    existing.qty = (existing.qty || 0) + qty;
+                } else {
+                    map.set(item.id, { ...item, qty: qty });
+                }
+            });
+
+            const merged = Array.from(map.values());
+            req.session.cart = merged;
+            res.locals.cartCount = merged.length;
+            res.locals.cart = merged;
+
+            if (JSON.stringify(userCart) !== JSON.stringify(merged)) {
+                await User.findByIdAndUpdate(req.user._id, { cart: merged });
+                req.user.cart = merged;
+            }
+        } catch (e) {
+            console.error("Cart Sync Error:", e);
         }
-      } else {
-        res.locals.cart = req.session.cart || [];
+    } else {
         res.locals.cartCount = (req.session && req.session.cart) ? req.session.cart.length : 0;
-      }
-      next();
-    }catch(e){
-      next(e);
     }
-  })();
+
+    next(); 
 });
+
+
+
+
+
+
+
+
+
 
 
 ///////////Demo 
