@@ -194,9 +194,6 @@
 
 
 
-
-
-
 require("dotenv").config();
 const dns = require('node:dns');
 dns.setDefaultResultOrder('ipv4first');
@@ -223,12 +220,8 @@ const cartRouter = require("./routes/cart.js");
 const dbUrl = process.env.ATLASDB_URL;
 
 main()
-  .then(() => {
-    console.log("connected to DB");
-  })
-  .catch((err) => {
-    console.log("DB Connection Error:", err);
-  });
+  .then(() => console.log("connected to DB"))
+  .catch((err) => console.log("DB Connection Error:", err));
 
 async function main() {
   await mongoose.connect(dbUrl);
@@ -241,20 +234,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
-// CRITICAL FOR VERCEL: Set trust proxy BEFORE session
+// MANDATORY FOR VERCEL (Set before session)
 app.set("trust proxy", 1);
 
 const store = mongoStore.create({
   mongoUrl: dbUrl,
-  crypto: {
-    secret: process.env.SECRET,
-  },
+  crypto: { secret: process.env.SECRET },
   touchAfter: 24 * 3600,
 });
 
-store.on("error", (err) => {
-  console.log("ERROR in Mongo Session Store", err);
-});
+store.on("error", (err) => console.log("ERROR in Mongo Session Store", err));
 
 const sessionOptions = {
   store,
@@ -265,9 +254,8 @@ const sessionOptions = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    // Adjusting for production (Vercel) vs Development
-    secure: process.env.NODE_ENV === "production", 
-    sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+    secure: true, // Vercel is HTTPS
+    sameSite: 'lax', // Use 'lax' for better login stability on Vercel
   }
 };
 
@@ -281,52 +269,53 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// Global Middleware for Cart and User
+// Combined Global Middleware (User + Cart Logic)
 app.use(async (req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-  res.locals.currUser = req.user;
+  res.locals.currUser = req.user || null;
 
   try {
+    let currentCart = [];
+    
     if (req.user) {
-      // Ensure userCart is always an array to prevent .length or .concat errors
+      // Ensure arrays exist
       const userCart = Array.isArray(req.user.cart) ? req.user.cart : [];
       const sessionCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
 
+      // Merge session and DB cart
       const map = new Map();
-      // Merge session cart into user cart
       [...sessionCart, ...userCart].forEach(item => {
-        if (!item || !item.id) return;
-        const qty = item.qty ? Number(item.qty) : 1;
-        if (map.has(item.id)) {
-          map.get(item.id).qty += qty;
-        } else {
-          map.set(item.id, { ...item, qty });
+        if (item && item.id) {
+          const qty = Number(item.qty) || 1;
+          if (map.has(item.id)) {
+            map.get(item.id).qty += qty;
+          } else {
+            map.set(item.id, { ...item, qty });
+          }
         }
       });
+      currentCart = Array.from(map.values());
 
-      const merged = Array.from(map.values());
-      
-      // Update local and session variables
-      req.session.cart = merged;
-      res.locals.cart = merged;
-      res.locals.cartCount = merged.length;
-
-      // Persist to DB only if changes occurred
-      if (JSON.stringify(merged) !== JSON.stringify(userCart)) {
-        const updated = await User.findByIdAndUpdate(req.user._id, { cart: merged }, { new: true });
+      // Sync back to DB if changed
+      if (JSON.stringify(currentCart) !== JSON.stringify(userCart)) {
+        const updated = await User.findByIdAndUpdate(req.user._id, { cart: currentCart }, { new: true });
         req.user = updated;
       }
+      req.session.cart = currentCart;
     } else {
-      // Guest User logic
-      const sessionCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
-      res.locals.cart = sessionCart;
-      res.locals.cartCount = sessionCart.length;
+      // Guest User
+      currentCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
     }
+
+    res.locals.cart = currentCart;
+    res.locals.cartCount = currentCart.length; // Now guaranteed to be an array
     next();
   } catch (err) {
     console.error("Cart Middleware Error:", err);
-    next(err);
+    res.locals.cart = [];
+    res.locals.cartCount = 0;
+    next();
   }
 });
 
