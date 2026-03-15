@@ -1,4 +1,4 @@
-<% layout("/layouts/boilerplate") %>
+<!-- <% layout("/layouts/boilerplate") %>
 <div class="row mt-3">
   <div class="col-8 offset-2">
     <h2>Your Cart</h2>
@@ -24,6 +24,40 @@
       </ul>
       <br>
       <p><strong>Total:</strong> &#8377;<%= cart.reduce((s,i)=>s+(i.price||0),0).toLocaleString("en-IN") %></p>
+    <% } %>
+  </div>
+</div> -->
+
+
+
+<% layout("/layouts/boilerplate") %>
+<div class="row mt-3">
+  <div class="col-8 offset-2">
+    <h2>Your Cart</h2>
+    <% if (!cart || cart.length === 0) { %>
+      <p>Your cart is empty.</p>
+    <% } else { %>
+      <ul class="list-group">
+        <% cart.forEach(item => { %>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <strong><%= item.title || "Unknown Property" %></strong>
+              <div>
+                <!-- FIXED LINE BELOW: Checks if price exists before calling toLocaleString -->
+                <small>₹<%= (item.price && typeof item.price === 'number') ? item.price.toLocaleString("en-IN") : '0' %></small>
+              </div>
+            </div>
+            <div>
+              <form method="POST" action="/cart/remove/<%= item.id %>" style="display:inline">
+                <button class="btn btn-sm btn-outline-danger"><i class="fa-regular fa-trash-can"></i></button>
+              </form>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+      <br>
+      <!-- FIXED TOTAL CALCULATION BELOW -->
+      <p><strong>Total:</strong> ₹<%= cart.reduce((s, i) => s + (Number(i.price) || 0), 0).toLocaleString("en-IN") %></p>
     <% } %>
   </div>
 </div>
