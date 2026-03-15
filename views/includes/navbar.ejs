@@ -27,6 +27,36 @@
     color: black;
     font-weight: 600;
   }
+
+
+
+  @media (max-width: 768px) {
+  /* Hamburger khulne par padding */
+  .navbar-collapse {
+    padding: 1rem 0;
+  }
+  
+  /* Search box ki width sahi karein */
+  .search-inp {
+    width: 100% !important;
+    max-width: 300px;
+  }
+
+  /* Saare links ke beech gap */
+  .navbar-nav .nav-link {
+    padding: 0.8rem 0 !important;
+    border-bottom: 1px solid #eee; /* Halka divider */
+    text-align: center;
+  }
+
+  /* Cart ko center karein */
+  .navbar-nav .position-relative {
+    display: inline-block;
+    width: fit-content;
+    margin: 1rem auto;
+  }
+}
+
 </style>
 
 
