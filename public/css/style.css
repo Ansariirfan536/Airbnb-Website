@@ -169,3 +169,7 @@ flex: 1;
     opacity: 1;
     color: rgb(4, 4, 70);
 }
+.starability-result {
+    transform: scale(0.8); /* Agar stars zyada bade hain */
+    transform-origin: left;
+}
