@@ -1,96 +1,105 @@
 <style>
+  /* 1. Fix the Overlap: Make sure navbar has a solid background and height */
   .navbar {
     background-color: white !important;
     z-index: 1000 !important;
-  }
-  .search-btn {
-    background-color: #fe424d;
-    color: #fff;
-    padding: 0 1rem;
-    border-radius: 25px;
-  }
-  .search-btn:hover {
-    background-color: #fe424d;
-    color: #fff;
-  }
-  .search-inp {
-    border-radius: 25px;
-    padding: 0.5rem 3rem;
-    font-size: 1rem;
-  }
-  .nav-link-a {
-    background-color: #fe424d;
-    border-radius: 25px;
-    padding: 0.5rem 1.5rem;
-    font-size: 1rem;
-    text-decoration: none;
-    color: white !important;
-    font-weight: 600;
-    text-align: center;
+    width: 100%;
   }
 
+  /* 2. Fix the Search Bar: Make it fit on one line or stack nicely */
+  .search-inp {
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    width: 100%; /* Important for mobile */
+  }
+
+  .search-btn {
+    background-color: #fe424d;
+    color: white;
+    border-radius: 25px;
+    padding: 0.5rem 1.2rem;
+    border: none;
+  }
+
+  /* 3. Mobile Specific Fixes */
   @media (max-width: 768px) {
+    /* Ensure the menu pushes content down instead of floating over it */
     .navbar-collapse {
-      padding: 1rem 0;
       background-color: white;
+      padding: 1rem;
+      border-bottom: 1px solid #ddd;
     }
-    .search-inp {
-      width: 100% !important;
-      padding: 0.5rem 1rem !important;
+
+    /* Stack buttons and links vertically with spacing */
+    .navbar-nav {
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center everything in mobile menu */
+      gap: 10px;
     }
-    .nav-link {
-      text-align: center;
-      padding: 0.7rem 0 !important;
-      border-bottom: 1px solid #eee;
-    }
+
     .nav-link-a {
-      display: block;
-      margin: 10px auto;
-      width: 90%;
+      width: 100%;
+      text-align: center;
+      background-color: #fe424d;
+      color: white !important;
+      border-radius: 25px;
+      padding: 0.8rem;
+      margin: 5px 0;
+      text-decoration: none;
     }
-    .navbar-nav .position-relative {
-      display: inline-block;
-      width: fit-content;
-      margin: 1rem auto;
-      left: 50%;
-      transform: translateX(-50%);
+
+    /* Fix the search form layout in mobile menu */
+    #nav-search-form {
+      width: 100%;
+      display: flex;
+      gap: 5px;
     }
   }
 </style>
 
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
+<nav class="navbar navbar-expand-md bg-white border-bottom sticky-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/listings"><i class="fa-solid fa-compass"></i></a>
+    <a class="navbar-brand" href="/listings">
+      <i class="fa-solid fa-compass" style="color: #fe424d; font-size: 2rem;"></i>
+    </a>
+    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
+      <div class="navbar-nav w-100">
+        <!-- Explore Link -->
         <a class="nav-link" href="/listings">Explore</a>
-      </div>
 
-      <div class="navbar-nav ms-auto">
-        <form id="nav-search-form" class="d-flex" role="search" method="GET" action="/listings">
-          <input type="search" id="nav-search-input" name="country" class="form-control me-2 search-inp" placeholder="Search destination">
-          <button id="nav-search-button" class="btn search-btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </form>
-      </div>
+        <!-- Search Form -->
+        <div class="mx-auto" style="width: 100%; max-width: 400px;">
+          <form id="nav-search-form" class="d-flex" role="search" method="GET" action="/listings">
+            <input id="nav-search-input" name="country" class="form-control search-inp" type="search" placeholder="Search destination">
+            <button class="btn search-btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </form>
+        </div>
 
-      <div class="navbar-nav ms-auto align-items-center">
-        <a class="nav-link-a" href="/listings/new">Airbnb your home</a>
-        <% if(!currUser){ %>
-          <a class="nav-link" href="/signup"><b>Sign up</b></a>
-          <a class="nav-link" href="/login"><b>Log in</b></a>
-        <% } %>
-        <% if(currUser){ %>
-          <a class="nav-link" href="/logout"><b>Log out</b></a>
-        <% } %>
-        <a class="nav-link position-relative" href="/cart">
-          <i class="fa-solid fa-shopping-cart"></i> Cart
-          <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
-            <%= (typeof cartCount !== 'undefined') ? cartCount : 0 %>
-          </span>
-        </a>
+        <!-- Right Side Links -->
+        <div class="d-flex flex-column flex-md-row align-items-center gap-2">
+          <a class="nav-link-a" href="/listings/new">Airbnb your home</a>
+          
+          <% if(!currUser){ %>
+            <a class="nav-link" href="/signup"><b>Sign up</b></a>
+            <a class="nav-link" href="/login"><b>Log in</b></a>
+          <% } else { %>
+            <a class="nav-link" href="/logout"><b>Log out</b></a>
+          <% } %>
+
+          <a class="nav-link position-relative" href="/cart">
+            <i class="fa-solid fa-shopping-cart"></i> Cart
+            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+              <%= (typeof cartCount !== 'undefined') ? cartCount : 0 %>
+            </span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
