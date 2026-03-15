@@ -64,17 +64,30 @@
 }
 
 @media (max-width: 768px) {
-  .tax-toggle {
+  /* Filters ko ek line mein scroll karne ke liye */
+  #filters {
+    display: flex !important;
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding: 1rem 0;
+  }
+  .filter {
+    flex: 0 0 auto;
+    margin-right: 1.5rem;
+    margin-top: 0.5rem;
+  }
+  /* Google button aur Tax toggle ko mobile par sahi karne ke liye */
+  .ancor, .tax-toggle {
     margin-left: 0 !important;
-    margin-top: 1rem;
-    width: 100%; /* Mobile par poori width le lega */
-    justify-content: center;
-  }}
-@media (max-width: 600px) {
+    width: 100% !important;
+    margin-top: 10px;
+  }
+  /* Mobile par image ki height thodi kam karne ke liye */
   .card-img-top {
-    height: 15rem !important; /* Mobile par image thodi choti */
+    height: 16rem !important;
   }
 }
+
 
 
     </style>
@@ -156,7 +169,7 @@
   <% } %>
 </div>
 
-<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 mt-3">
   <% for (let listing of allListings){ %>
     <div class="col mb-4 listing-item" data-country="<%= listing.country %>" data-location="<%= listing.location %>" data-title="<%= listing.title %>">
       <div class="card listing-card h-100">
