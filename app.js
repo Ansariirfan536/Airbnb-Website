@@ -236,15 +236,16 @@ app.set("trust proxy", 1);
 
 const store = mongoStore.create({
   mongoUrl: dbUrl,
-  crypto: { secret: process.env.SECRET },
+  // crypto: { secret: process.env.SECRET },
   touchAfter: 24 * 3600,
 });
 
 const sessionOptions = {
   store,
-  secret: process.env.SECRET,
+  // secret: process.env.SECRET,
+   secret: process.env.SECRET || "mysupersecret", 
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
