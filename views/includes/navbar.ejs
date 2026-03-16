@@ -22,41 +22,44 @@
     border: none;
   }
 
-  /* 3. Mobile Specific Fixes */
-  @media (max-width: 768px) {
-    /* Ensure the menu pushes content down instead of floating over it */
+  /* Ye style sabhi screens (Desktop + Mobile) par apply hoga */
+.nav-link-a {
+  background-color: #fe424d;
+  color: white !important;
+  border-radius: 25px;
+  padding: 0.8rem;
+  text-decoration: none;
+}
+
+/* Ye sirf Mobile (768px se kam) par apply hoga */
+@media (max-width: 768px) {
     .navbar-collapse {
       background-color: white;
       padding: 1rem;
       border-bottom: 1px solid #ddd;
     }
 
-    /* Stack buttons and links vertically with spacing */
     .navbar-nav {
       display: flex;
       flex-direction: column;
-      align-items: center; /* Center everything in mobile menu */
+      align-items: center;
       gap: 10px;
     }
 
     .nav-link-a {
       width: 100%;
       text-align: center;
-      background-color: #fe424d;
-      color: white !important;
-      border-radius: 25px;
-      padding: 0.8rem;
       margin: 5px 0;
-      text-decoration: none;
     }
 
-    /* Fix the search form layout in mobile menu */
     #nav-search-form {
       width: 100%;
       display: flex;
       gap: 5px;
     }
-  }
+}
+
+  
 </style>
 
 <nav class="navbar navbar-expand-md bg-white border-bottom sticky-top">
@@ -84,7 +87,7 @@
 
         <!-- Right Side Links -->
         <div class="d-flex flex-column flex-md-row align-items-center gap-2">
-          <a class="nav-link-a" href="/listings/new">Airbnb your home</a>
+          <a class="nav-link-a" href="/listings/new" >Airbnb your home</a>
           
           <% if(!currUser){ %>
             <a class="nav-link" href="/signup"><b>Sign up</b></a>
