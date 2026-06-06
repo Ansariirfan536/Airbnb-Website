@@ -1,5 +1,5 @@
 <!-- ==================================================================== -->
-<!-- APPLICATION COMPONENT: 100% RESPONSIVE TALKING AVATAR PORTAL MASTER -->
+<!-- APPLICATION COMPONENT: 100% PERFECT FIXED MOBILE BOTTOM INPUT CHAT   -->
 <!-- PATH: views/layouts/boilerplate.ejs                                 -->
 <!-- ==================================================================== -->
 
@@ -7,7 +7,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wanderlust - India's Finest Heritage Stays</title>
     
     <!-- Custom and Core Typography Stylesheets (Your Original Links) -->
@@ -52,7 +52,8 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(15, 11, 8, 0.96);
+            height: 100dvh; /* Dynamic Viewport Height for mobile browsers */
+            background: rgba(15, 11, 8, 0.98);
             z-index: 1000000 !important;
             display: flex;
             align-items: center;
@@ -60,7 +61,7 @@
             font-family: "Plus Jakarta Sans", sans-serif;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.3s ease;
             padding: 20px;
         }
 
@@ -70,6 +71,7 @@
             width: 100%;
             max-width: 1100px;
             height: 85vh;
+            height: 85dvh;
             display: flex;
             background: #251c14;
             border-radius: 24px;
@@ -179,6 +181,7 @@
             flex-direction: column;
             background: #1c150f;
             min-height: 0;
+            position: relative;
         }
 
         .portal-header {
@@ -275,57 +278,81 @@
         }
 
         /* ==================================================================== */
-        /* RESPONSIVE MEDIA BREAKPOINTS MATRIX (STRICT MOBILE LAYOUT CORRECTION)*/
+        /* RESPONSIVE MEDIA BREAKPOINTS (THE ULTIMATE MOBILE HEIGHT FIX)        */
         /* ==================================================================== */
         @media (max-width: 992px) {
-            #ai-teacher-portal { padding: 10px; }
+            #ai-teacher-portal { padding: 0; } 
             
             .portal-container {
                 width: 100%;
-                height: 90vh;
+                height: 100vh;
+                height: 100dvh; /* Dynamic full screen lock */
+                border-radius: 0;
+                border: none;
                 flex-direction: column;
             }
 
             .avatar-display-pane {
-                flex: 0 0 130px; /* Micro header size for small viewports */
+                flex: 0 0 70px; /* Heavily compressed on mobile to maximize chat area */
                 border-right: none;
-                border-bottom: 2px solid #d4af37;
-                background-position: center 8%;
+                border-bottom: 1px solid #d4af37;
+                background-position: center 5%;
             }
 
             .avatar-overlay-gradient {
                 height: 100%;
-                background: linear-gradient(rgba(37, 28, 20, 0.1), rgba(37, 28, 20, 0.95) 85%);
-                padding: 12px 20px;
+                background: linear-gradient(rgba(37, 28, 20, 0.4), rgba(37, 28, 20, 0.95));
+                padding: 10px 15px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
             }
 
-            .avatar-overlay-gradient h3 { font-size: 1.1rem; }
-            .avatar-overlay-gradient p { font-size: 0.8rem; }
-            .avatar-status-badge { padding: 3px 10px; font-size: 0.7rem; margin-bottom: 2px; }
-            .voice-wave-container { top: 12px; right: 20px; height: 20px; }
-            .wave-bar { width: 3px; }
+            .avatar-overlay-gradient h3 { font-size: 0.95rem; margin: 0; }
+            .avatar-overlay-gradient p { display: none; } /* Saved space */
+            .avatar-status-badge { margin-bottom: 0; padding: 2px 8px; font-size: 0.65rem; }
+            .voice-wave-container { position: static; height: 15px; transform: none; }
+            .wave-bar { width: 2px; }
             
             .chat-interaction-pane {
-                flex: 1; /* Guarantees chat dashboard fills the rest of the layout viewport */
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                height: calc(100dvh - 70px);
+                overflow: hidden;
             }
         }
 
         @media (max-width: 576px) {
             #genius-chat-root { bottom: 20px; right: 20px; }
             #genius-chat-trigger { padding: 8px 18px; font-size: 0.85rem; gap: 8px; }
-            #genius-chat-trigger img { width: 30px !important; height: 30px !important; }
             
-            #ai-teacher-portal { padding: 0; }
-            .portal-container { height: 100vh; border-radius: 0; border: none; }
-
-            .avatar-display-pane { flex: 0 0 115px; background-position: center 5%; }
-            .portal-header { padding: 10px 16px; }
-            .portal-header h5 { font-size: 0.95rem; }
-            .portal-chat-body { padding: 14px; gap: 12px; }
-            .portal-bubble { max-width: 90%; font-size: 0.88rem; padding: 10px 14px; }
-            .portal-footer { padding: 10px 16px; gap: 8px; }
-            .portal-input { padding: 10px 18px; font-size: 0.88rem; }
-            .portal-send-btn { width: 42px; height: 42px; font-size: 1rem; }
+            .portal-header { padding: 8px 14px; background: #1c150f; }
+            .portal-header h5 { font-size: 0.85rem; }
+            
+            .portal-chat-body { 
+                padding: 12px; 
+                gap: 10px;
+                padding-bottom: 80px; /* Safe padding so messages never hide behind footer */
+            }
+            .portal-bubble { max-width: 88%; font-size: 0.85rem; padding: 10px 12px; }
+            
+            /* SYSTEM FORCED FIXED BOTTOM PANEL FOR MOBILE INPUT FIX */
+            .portal-footer { 
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                padding: 10px 12px; 
+                gap: 8px; 
+                background: #251c14;
+                border-top: 1px solid #3d2e21;
+                z-index: 99999;
+                box-shadow: 0 -5px 15px rgba(0,0,0,0.4);
+            }
+            .portal-input { padding: 8px 16px; font-size: 0.85rem; height: 38px; }
+            .portal-send-btn { width: 38px; height: 38px; font-size: 0.85rem; }
         }
      </style>
 </head>
@@ -365,9 +392,9 @@
                 <div class="avatar-overlay-gradient">
                     <div class="avatar-status-badge">
                         <div class="pulse-dot"></div>
-                        <span id="voice-status-label">Irfan's AI Concierge Ready</span>
+                        <span id="voice-status-label">Irfan's AI Ready</span>
                     </div>
-                    <h3 style="color: #f7f3ed; margin: 0; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.9);">Wanderlust Master Portal</h3>
+                    <h3 style="color: #f7f3ed; margin: 0; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.9);">Wanderlust Portal</h3>
                     <p style="color: #d4af37; font-size: 0.95rem; margin: 5px 0 0 0; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.8);">Interactive Talking Avatar Engine</p>
                 </div>
             </div>
@@ -380,7 +407,6 @@
                 </div>
                 
                 <div class="portal-chat-body" id="portal-chat-body">
-                    <!-- YOUR CUSTOM EDITED TEXT KEPT CAREFULLY -->
                     <div class="portal-bubble bot-p">
                         Namaste @Irfan ❤️! I am your interactive voice assistant . We conversation brochara or friends you can asks about property, rates, ya ratings !!
                     </div>
@@ -443,7 +469,7 @@
                 };
                 speechUtterance.onend = () => {
                     avatarPane.classList.remove("speaking");
-                    statusLabel.innerText = "Irfan's AI  Ready";
+                    statusLabel.innerText = "Irfan's AI Ready";
                 };
 
                 window.speechSynthesis.speak(speechUtterance);
