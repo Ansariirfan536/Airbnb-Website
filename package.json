@@ -1,16 +1,14 @@
-
-
-
 {
     "engines": {
         "node": ">=20.18.0"
     },
     "name": "majorproject",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "app.js",
     "scripts": {
         "start": "node app.js",
-        "dev": "nodemon app.js"
+        "dev": "nodemon app.js",
+        "install": "npm install --legacy-peer-deps"
     },
     "keywords": [],
     "author": "",
