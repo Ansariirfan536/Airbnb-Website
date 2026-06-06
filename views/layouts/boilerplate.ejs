@@ -1,5 +1,5 @@
 <!-- ==================================================================== -->
-<!-- APPLICATION COMPONENT: FULLY RESPONSIVE TALKING AVATAR PORTAL MASTER -->
+<!-- APPLICATION COMPONENT: 100% RESPONSIVE TALKING AVATAR PORTAL MASTER -->
 <!-- PATH: views/layouts/boilerplate.ejs                                 -->
 <!-- ==================================================================== -->
 
@@ -19,7 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Roboto:wght@300;400;500;900&display=swap" rel="stylesheet">
     <link href="/css/rating.css" rel="stylesheet">
 
-    <!-- Interactive AI Teacher / Concierge Responsive Layout presentation Style -->
+    <!-- Interactive AI Responsive Layout presentation Style -->
     <style>
         #genius-chat-root { 
             position: fixed; 
@@ -61,14 +61,14 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.4s ease;
-            padding: 10px;
+            padding: 20px;
         }
 
         #ai-teacher-portal.active { opacity: 1; pointer-events: auto; }
 
         .portal-container {
-            width: 150%;
-            max-width: 1200px;
+            width: 100%;
+            max-width: 1100px;
             height: 85vh;
             display: flex;
             background: #251c14;
@@ -178,6 +178,7 @@
             display: flex;
             flex-direction: column;
             background: #1c150f;
+            min-height: 0;
         }
 
         .portal-header {
@@ -187,6 +188,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .portal-close-btn {
@@ -206,6 +208,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            min-height: 0;
         }
 
         .portal-bubble {
@@ -214,6 +217,7 @@
             max-width: 85%;
             font-size: 0.95rem;
             line-height: 1.5;
+            word-wrap: break-word;
         }
 
         .bot-p {
@@ -238,6 +242,7 @@
             border-top: 1px solid #3d2e21;
             display: flex;
             gap: 12px;
+            flex-shrink: 0;
         }
 
         .portal-input {
@@ -249,6 +254,7 @@
             color: #f7f3ed;
             outline: none;
             font-size: 0.95rem;
+            min-width: 0;
         }
 
         .portal-input:focus { border-color: #d4af37; }
@@ -269,58 +275,57 @@
         }
 
         /* ==================================================================== */
-        /* RESPONSIVE MEDIA BREAKPOINTS MATRIX                                  */
-        /* ==================================================================== --> */
+        /* RESPONSIVE MEDIA BREAKPOINTS MATRIX (STRICT MOBILE LAYOUT CORRECTION)*/
+        /* ==================================================================== */
         @media (max-width: 992px) {
+            #ai-teacher-portal { padding: 10px; }
+            
             .portal-container {
-                width: 95%;
+                width: 100%;
                 height: 90vh;
                 flex-direction: column;
             }
 
             .avatar-display-pane {
-                flex: 0 0 180px; /* Short fixed size framework for mobile portrait view */
+                flex: 0 0 130px; /* Micro header size for small viewports */
                 border-right: none;
                 border-bottom: 2px solid #d4af37;
-                background-position: center 20%;
+                background-position: center 8%;
             }
 
             .avatar-overlay-gradient {
                 height: 100%;
-                background: linear-gradient(rgba(37, 28, 20, 0.2), rgba(37, 28, 20, 0.9) 90%);
-                padding: 15px;
+                background: linear-gradient(rgba(37, 28, 20, 0.1), rgba(37, 28, 20, 0.95) 85%);
+                padding: 12px 20px;
             }
 
-            .avatar-overlay-gradient h3 { font-size: 1.2rem; }
+            .avatar-overlay-gradient h3 { font-size: 1.1rem; }
             .avatar-overlay-gradient p { font-size: 0.8rem; }
-            .avatar-status-badge { padding: 4px 12px; font-size: 0.75rem; margin-bottom: 4px; }
-            .voice-wave-container { top: 15px; right: 15px; height: 20px; }
+            .avatar-status-badge { padding: 3px 10px; font-size: 0.7rem; margin-bottom: 2px; }
+            .voice-wave-container { top: 12px; right: 20px; height: 20px; }
             .wave-bar { width: 3px; }
+            
+            .chat-interaction-pane {
+                flex: 1; /* Guarantees chat dashboard fills the rest of the layout viewport */
+            }
         }
 
         @media (max-width: 576px) {
-            #genius-chat-root { bottom: 15px; right: 15px; }
-            #genius-chat-trigger { padding: 8px 16px; font-size: 0.9rem; }
+            #genius-chat-root { bottom: 20px; right: 20px; }
+            #genius-chat-trigger { padding: 8px 18px; font-size: 0.85rem; gap: 8px; }
+            #genius-chat-trigger img { width: 30px !important; height: 30px !important; }
             
-            .portal-container {
-                width: 100%;
-                height: 100vh;
-                border-radius: 0;
-                border: none;
-            }
             #ai-teacher-portal { padding: 0; }
+            .portal-container { height: 100vh; border-radius: 0; border: none; }
 
-            .avatar-display-pane {
-                flex: 0 0 140px;
-                background-position: center 15%;
-            }
-
-            .portal-chat-body { padding: 15px; gap: 12px; }
+            .avatar-display-pane { flex: 0 0 115px; background-position: center 5%; }
+            .portal-header { padding: 10px 16px; }
+            .portal-header h5 { font-size: 0.95rem; }
+            .portal-chat-body { padding: 14px; gap: 12px; }
             .portal-bubble { max-width: 90%; font-size: 0.88rem; padding: 10px 14px; }
-            .portal-footer { padding: 12px; gap: 8px; }
+            .portal-footer { padding: 10px 16px; gap: 8px; }
             .portal-input { padding: 10px 18px; font-size: 0.88rem; }
-            .portal-send-btn { width: 40px; height: 40px; font-size: 0.95rem; }
-            .portal-header { padding: 15px; }
+            .portal-send-btn { width: 42px; height: 42px; font-size: 1rem; }
         }
      </style>
 </head>
@@ -375,8 +380,9 @@
                 </div>
                 
                 <div class="portal-chat-body" id="portal-chat-body">
+                    <!-- YOUR CUSTOM EDITED TEXT KEPT CAREFULLY -->
                     <div class="portal-bubble bot-p">
-                        Namaste @Irfan ❤️! I am your  interactive voice assistant .  We conversation brochara or friends you can asks about property, rates, ya ratings !!
+                        Namaste @Irfan ❤️! I am your interactive voice assistant . We conversation brochara or friends you can asks about property, rates, ya ratings !!
                     </div>
                 </div>
 
@@ -480,7 +486,7 @@
                     Mirror user vocabulary words instantly:
                     - If user says "bhai", respond with "bhai".
                     - If user says "dost", respond with "dost/yrr".
-                     If user says "friend", respond with "friend".
+                    - If user says "friend", respond with "friend".
                     
                     CRITICAL REVIEWS & REAL CLICKABLE LINK GENERATION:
                     If a user asks about pricing, location, ratings, or reviews for an item, look at this data context map: ${JSON.stringify(catalogContext)}.
@@ -516,7 +522,7 @@
                         lBubble.innerHTML = `Haan ${identityToken}! Maine list me check kiya, <b>${targetedFallback.title}</b> ekdum top tier stay hai.<br><br>💰 <b>Price:</b> ${targetedFallback.priceDetails}<br>⭐
                          <b>Rating & Reviews:</b> Yaar iska record bohot behtareen h (4.8/5 Star Rating).<br><br><a href="${targetedFallback.href}" target="_blank" style="color:#d4af37; font-weight:bold; text-decoration:underline;">Explore Royal Palace Heritage & Reviews</a>`;
                     } else {
-                        lBubble.innerText = `sorry 😒 ${identityToken}, connection was  temporary slow . please refresh a pages or wait !`;
+                        lBubble.innerText = `sorry 😒 ${identityToken}, connection was temporary slow . please refresh a pages or wait !`;
                     }
                     speakAILine(lBubble.innerText, queryText);
                 }
