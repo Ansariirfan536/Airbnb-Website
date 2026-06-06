@@ -7,8 +7,8 @@
     "main": "app.js",
     "scripts": {
         "start": "node app.js",
-        "dev": "nodemon app.js",
-        "install": "npm install --legacy-peer-deps"
+        "dev": "nodemon app.js"
+        
     },
     "keywords": [],
     "author": "",
