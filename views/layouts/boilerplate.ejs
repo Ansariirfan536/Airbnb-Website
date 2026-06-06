@@ -1,5 +1,5 @@
 <!-- ==================================================================== -->
-<!-- APPLICATION COMPONENT: MULTILINGUAL TALKING AVATAR PORTAL ACTIVE LINK-->
+<!-- APPLICATION COMPONENT: FULLY RESPONSIVE TALKING AVATAR PORTAL MASTER -->
 <!-- PATH: views/layouts/boilerplate.ejs                                 -->
 <!-- ==================================================================== -->
 
@@ -19,7 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Roboto:wght@300;400;500;900&display=swap" rel="stylesheet">
     <link href="/css/rating.css" rel="stylesheet">
 
-    <!-- Interactive AI Teacher / Concierge Screen Layout Presentation Style -->
+    <!-- Interactive AI Teacher / Concierge Responsive Layout presentation Style -->
     <style>
         #genius-chat-root { 
             position: fixed; 
@@ -61,12 +61,13 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.4s ease;
+            padding: 10px;
         }
 
         #ai-teacher-portal.active { opacity: 1; pointer-events: auto; }
 
         .portal-container {
-            width: 90%;
+            width: 150%;
             max-width: 1200px;
             height: 85vh;
             display: flex;
@@ -75,6 +76,7 @@
             border: 2px solid #d4af37;
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
         }
 
         /* LEFT PANEL: PHOTO FRAME WITH SPEAKING WAVE ANIMATION LAYER */
@@ -108,6 +110,7 @@
             height: 30px;
             opacity: 0;
             transition: opacity 0.3s ease;
+            z-index: 10;
         }
 
         .avatar-display-pane.speaking .voice-wave-container { opacity: 1; }
@@ -193,6 +196,7 @@
             font-size: 2rem;
             cursor: pointer;
             transition: transform 0.2s;
+            line-height: 1;
         }
 
         .portal-chat-body {
@@ -261,6 +265,62 @@
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        /* ==================================================================== */
+        /* RESPONSIVE MEDIA BREAKPOINTS MATRIX                                  */
+        /* ==================================================================== --> */
+        @media (max-width: 992px) {
+            .portal-container {
+                width: 95%;
+                height: 90vh;
+                flex-direction: column;
+            }
+
+            .avatar-display-pane {
+                flex: 0 0 180px; /* Short fixed size framework for mobile portrait view */
+                border-right: none;
+                border-bottom: 2px solid #d4af37;
+                background-position: center 20%;
+            }
+
+            .avatar-overlay-gradient {
+                height: 100%;
+                background: linear-gradient(rgba(37, 28, 20, 0.2), rgba(37, 28, 20, 0.9) 90%);
+                padding: 15px;
+            }
+
+            .avatar-overlay-gradient h3 { font-size: 1.2rem; }
+            .avatar-overlay-gradient p { font-size: 0.8rem; }
+            .avatar-status-badge { padding: 4px 12px; font-size: 0.75rem; margin-bottom: 4px; }
+            .voice-wave-container { top: 15px; right: 15px; height: 20px; }
+            .wave-bar { width: 3px; }
+        }
+
+        @media (max-width: 576px) {
+            #genius-chat-root { bottom: 15px; right: 15px; }
+            #genius-chat-trigger { padding: 8px 16px; font-size: 0.9rem; }
+            
+            .portal-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+            #ai-teacher-portal { padding: 0; }
+
+            .avatar-display-pane {
+                flex: 0 0 140px;
+                background-position: center 15%;
+            }
+
+            .portal-chat-body { padding: 15px; gap: 12px; }
+            .portal-bubble { max-width: 90%; font-size: 0.88rem; padding: 10px 14px; }
+            .portal-footer { padding: 12px; gap: 8px; }
+            .portal-input { padding: 10px 18px; font-size: 0.88rem; }
+            .portal-send-btn { width: 40px; height: 40px; font-size: 0.95rem; }
+            .portal-header { padding: 15px; }
         }
      </style>
 </head>
@@ -400,7 +460,6 @@
                 chatBody.appendChild(lBubble);
                 chatBody.scrollTop = chatBody.scrollHeight;
 
-                // FIX FOR CLICKABLE LINKS: DOM Scraper ab exact routing href anchor tokens collect karega
                 const activeCards = Array.from(document.querySelectorAll('.card, .listing-item, .listing-card'));
                 const catalogContext = activeCards.map(c => {
                     const titleNode = c.querySelector('b, .card-title');
@@ -415,7 +474,6 @@
                 });
 
                 try {
-                    // SYSTEM CONFIG ENGINE: Modifying link token parsing format with dynamic array mappings
                     const systemPromptRule = `You are a professional, friendly, and young male AI concierge assistant for "Wanderlust Heritage Stays".
                     
                     CRITICAL REFLECTION RULE:
@@ -445,7 +503,6 @@
                     speakAILine(responseContent, queryText); 
 
                 } catch(e) {
-                    // Fallback Engine link recovery
                     let targetedFallback = null;
                     catalogContext.forEach(el => {
                         if(queryText.toLowerCase().includes(el.title.toLowerCase())) targetedFallback = el;
