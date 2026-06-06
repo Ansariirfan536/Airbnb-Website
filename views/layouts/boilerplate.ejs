@@ -376,7 +376,7 @@
                 
                 <div class="portal-chat-body" id="portal-chat-body">
                     <div class="portal-bubble bot-p">
-                        Namaste Irfan! Main aapka interactive voice assistant hoon. Ekdam aam conversation ki tarah baat karenge yaar, chill hoke kuch bhi pooch lo property, rates, ya ratings ke baare me!
+                        Namaste @Irfan ❤️! I am your  interactive voice assistant .  We conversation brochara or friends you can asks about property, rates, ya ratings !!
                     </div>
                 </div>
 
@@ -437,7 +437,7 @@
                 };
                 speechUtterance.onend = () => {
                     avatarPane.classList.remove("speaking");
-                    statusLabel.innerText = "Irfan's AI Concierge Ready";
+                    statusLabel.innerText = "Irfan's AI  Ready";
                 };
 
                 window.speechSynthesis.speak(speechUtterance);
@@ -474,12 +474,13 @@
                 });
 
                 try {
-                    const systemPromptRule = `You are a professional, friendly, and young male AI concierge assistant for "Wanderlust Heritage Stays".
+                    const systemPromptRule = `You are a professional, friendly, and young male AI Irfan's assistant for "Wanderlust Heritage Stays".
                     
                     CRITICAL REFLECTION RULE:
                     Mirror user vocabulary words instantly:
                     - If user says "bhai", respond with "bhai".
-                    - If user says "dost", respond with "dost".
+                    - If user says "dost", respond with "dost/yrr".
+                     If user says "friend", respond with "friend".
                     
                     CRITICAL REVIEWS & REAL CLICKABLE LINK GENERATION:
                     If a user asks about pricing, location, ratings, or reviews for an item, look at this data context map: ${JSON.stringify(catalogContext)}.
@@ -512,9 +513,10 @@
                     if(queryText.toLowerCase().includes("dost")) identityToken = "dost";
 
                     if(targetedFallback) {
-                        lBubble.innerHTML = `Haan ${identityToken}! Maine list me check kiya, <b>${targetedFallback.title}</b> ekdum top tier stay hai.<br><br>💰 <b>Price:</b> ${targetedFallback.priceDetails}<br>⭐ <b>Rating & Reviews:</b> Yaar iska record bohot behtareen h (4.8/5 Star Rating).<br><br><a href="${targetedFallback.href}" target="_blank" style="color:#d4af37; font-weight:bold; text-decoration:underline;">Explore Royal Palace Heritage & Reviews</a>`;
+                        lBubble.innerHTML = `Haan ${identityToken}! Maine list me check kiya, <b>${targetedFallback.title}</b> ekdum top tier stay hai.<br><br>💰 <b>Price:</b> ${targetedFallback.priceDetails}<br>⭐
+                         <b>Rating & Reviews:</b> Yaar iska record bohot behtareen h (4.8/5 Star Rating).<br><br><a href="${targetedFallback.href}" target="_blank" style="color:#d4af37; font-weight:bold; text-decoration:underline;">Explore Royal Palace Heritage & Reviews</a>`;
                     } else {
-                        lBubble.innerText = `Koi baat nahi ${identityToken}, connection temporary slow h. Ek baar page refresh karke dobara pooch le yaar!`;
+                        lBubble.innerText = `sorry 😒 ${identityToken}, connection was  temporary slow . please refresh a pages or wait !`;
                     }
                     speakAILine(lBubble.innerText, queryText);
                 }
