@@ -1,110 +1,103 @@
 <% layout("/layouts/boilerplate")%>
 <div class="row mt-3">
     <div class="col-8 offset-3">
-        <h3><%= listing.title%> :</h3>
+        <h3><%= listing.title %></h3>
     </div>
 
-     <div class="card col-6 offset-3 show-card listing-card">
-    <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image">
+    <div class="card col-6 offset-3 show-card listing-card">
+        <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image">
         <div class="card-body">
-          <p class="card-text">
-          <p> <i>Owned By - <%= listing.owner.username %></i></p>
-           <p> <%= listing.description%></p>
-           <p> &#8377;<%= listing.price.toLocaleString("en-IN") %></p>
-           <p>  <%= listing.location %></p>
+            <p><i>Owned By - <%= listing.owner ? listing.owner.username : "Unknown" %></i></p>
+            <p><%= listing.description %></p>
+            <p>&#8377; <%= listing.price.toLocaleString("en-IN") %></p>
+            <p><%= listing.location %></p>
             <p><%= listing.country %></p>
-
-            <!-- //////// -->
-            <!-- <% if(currUser && !listing.owner._id.equals(currUser._id)) { %>
-                            <form method="POST" action="/cart/add/<%= listing._id %>" style="display:inline">
-                                <button class="btn btn-primary">Add to Cart</button>
-                            </form>
-                        <% } %> -->
-
-
-                        
-                <form method="POST" action="/cart/add/<%= listing._id %>" style="display:inline">
-                                <button class="btn btn-primary">Add to Cart</button>
-                            </form>
-                
+            <form method="POST" action="/cart/add/<%= listing._id %>" style="display:inline">
+                <button class="btn btn-primary">Add to Cart</button>
+            </form>
         </div>
-</div>
-  
-<% if(currUser && listing.owner._id.equals(currUser._id)){%>
-    <div class="btns">
-        <a href="/listings/<%= listing._id%>/edit" class="btn btn-dark col-2 offset-3 edit-btn mb-3"> Edit </a>
-        <br><br>
-        <form method="POST" action="/listings/<%= listing._id%>?_method=DELETE">
-            <button class="btn btn-dark offset-5 mb-3 ">
-                Delete
-            </button>
-        </form>
     </div>
-   <%}%>
+
+    <% if(currUser && listing.owner && currUser._id.toString() === listing.owner._id.toString()) { %>
+    <div class="btns">
+        <button type="button" onclick="showVerification('edit')" class="btn btn-dark col-2 offset-3 edit-btn mb-3">Edit 📝</button>
+        <button type="button" onclick="showVerification('delete')" class="btn btn-dark offset-5 mb-3">Delete 🗑️</button>
+    </div>
+
+    <div id="verifyModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:20px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:9999; text-align:center; width:90%; max-width:300px; border: 2px solid transparent; display:flex; flex-direction:column; gap:15px;">
+        <h5 id="modalTitle" style="margin:0; font-size: 1.1rem; color:#333;">Security Verification</h5>
+        <canvas id="captchaCanvas" style="width:100%; height:60px; background:#f0f0f0; border-radius:5px;"></canvas>
+        <input type="text" id="userInput" placeholder="Type code here" class="form-control" style="text-align:center;">
+        <div style="display:flex; gap:10px;">
+            <button onclick="checkCode()" class="btn btn-success" style="flex:1;">Verify</button>
+            <button onclick="closeModal()" class="btn btn-secondary" style="flex:1;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let currentAction = "";
+        let generatedCode = "";
+        function showVerification(action) {
+            currentAction = action;
+            generatedCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('verifyModal').style.display = 'flex';
+            let canvas = document.getElementById('captchaCanvas');
+            let ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 150, 60);
+            ctx.font = "bold 25px Arial";
+            ctx.fillText(generatedCode, 25, 40);
+        }
+        function closeModal() { document.getElementById('verifyModal').style.display = 'none'; }
+        function checkCode() {
+            let userVal = document.getElementById('userInput').value;
+            let modal = document.getElementById('verifyModal');
+            if (userVal.toUpperCase() === generatedCode) {
+                if (currentAction === 'edit') window.location.href = "/listings/<%= listing._id %>/edit";
+                else {
+                    let form = document.createElement('form');
+                    form.method = 'POST'; form.action = '/listings/<%= listing._id %>?_method=DELETE';
+                    document.body.appendChild(form); form.submit();
+                }
+            } else {
+                modal.style.border = "2px solid red";
+                setTimeout(() => { modal.style.border = "2px solid transparent"; }, 1000);
+            }
+        }
+    </script>
+    <% } %>
 
     <div class="col-8 offset-3 mb-3 mt-3">
         <hr><hr>
-        <% if(currUser) {%>
+        <% if(currUser) { %>
         <h4>Leave a review</h4>
-        <form action="/listings/<%= listing.id %>/reviews" method="POST" novalidate 
-            class="needs-validation" >
-<!-- <div mb-3 mt-3>
-    <label for="rating" class="form-label">Rating</label>
-    <input type="range" min="1" max="5" id="rating" name="review[rating]" class="form-range">
-</div> -->
-
-<label for="rating" class="form-label">Rating</label>
-<fieldset class="starability-slot">
-    
-
-    <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
-    <input type="radio" id="first-rate1" name="review[rating]" value="1" />
-    <label for="first-rate1" title="Terrible">1 star</label>
-    <input type="radio" id="first-rate2" name="review[rating]" value="2" />
-    <label for="first-rate2" title="Not good">2 stars</label>
-    <input type="radio" id="first-rate3" name="review[rating]" value="3" />
-    <label for="first-rate3" title="Average">3 stars</label>
-    <input type="radio" id="first-rate4" name="review[rating]" value="4" />
-    <label for="first-rate4" title="Very good">4 stars</label>
-    <input type="radio" id="first-rate5" name="review[rating]" value="5" />
-    <label for="first-rate5" title="Amazing">5 stars</label>
-  </fieldset>
-</div>
-<div class="mb-3 mt-3">
-    <label for="comment" class="form-label">Comment</label>
-    <textarea name="review[comment]" id="comment" cols="30" 
-    rows="5" class="form-control" required></textarea>
-<div class="invalid-feedback">Please add some comments for review</div><br>
-<button class="btn btn-outline-dark" loading variant="outlined" loadingPosition="end">Submit</button>
-  </Button>
-</div>
-
+        <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation">
+            <fieldset class="starability-slot">
+                <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked />
+                <input type="radio" id="first-rate1" name="review[rating]" value="1" /> <label for="first-rate1">1 star</label>
+                <input type="radio" id="first-rate2" name="review[rating]" value="2" /> <label for="first-rate2">2 stars</label>
+                <input type="radio" id="first-rate3" name="review[rating]" value="3" /> <label for="first-rate3">3 stars</label>
+                <input type="radio" id="first-rate4" name="review[rating]" value="4" /> <label for="first-rate4">4 stars</label>
+                <input type="radio" id="first-rate5" name="review[rating]" value="5" /> <label for="first-rate5">5 stars</label>
+            </fieldset>
+            <textarea name="review[comment]" class="form-control" rows="5" required></textarea>
+            <button class="btn btn-outline-dark mt-3">Submit</button>
         </form>
-        <%}%>
+        <% } %>
         <hr>
         <h4><b>All Reviews</b></h4>
-    <div class="row">
-       <% for(review of listing.reviews) { %>
-        
-            <div class="card col-12 col-md-6 col-lg-4 mb-3">
-            <div class="card-body">
-                <h5 class="card-title">@<%=review.author.username%></h5>
-                <p class="starability-result card-text"
-                data-rating="<%= review.rating %>"></p>
+        <div class="row">
+            <% for(let review of listing.reviews) { %>
+            <div class="card col-md-5 mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@<%= review.author ? review.author.username : "Anonymous" %></h5>
+                    <p class="starability-result" data-rating="<%= review.rating %>"></p>
+                    <p class="card-text"><%= review.comment %></p>
+                </div>
+                <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                    <button class="btn btn-sm btn-dark mb-2 ms-2">Delete</button>
+                </form>
             </div>
-                <p class="card-text"> <%= review.comment %></p>
-                <p class="card-text"><%= review.rating %>  &#9733; </p>
-
-          
-          <form class="mb-3" method="POST" action="/listings/<%=listing._id%>/reviews/<%= review._id%>?_method=DELETE">
-            <button class="btn btn-sm btn-dark ">Delete</button>
-          </form>
-
+            <% } %>
         </div>
-        <% } %>
     </div>
-
-    </div>
-    </div>
-    
-    
+</div>
