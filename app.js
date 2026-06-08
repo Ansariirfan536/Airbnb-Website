@@ -24,6 +24,7 @@ const cartRouter = require("./routes/cart.js");
 
 const dbUrl = process.env.ATLASDB_URL;
 
+
 main()
   .then(() => console.log("Connected to DB"))
   .catch((err) => console.log("DB Connection Error:", err));
@@ -48,17 +49,32 @@ const store = mongoStore.create({
   touchAfter: 24 * 3600,
 });
 
+// const sessionOptions = {
+//   store,
+//   // secret: process.env.SECRET,
+//    secret: process.env.SECRET || "mysupersecret", 
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+//     maxAge: 7 * 24 * 60 * 60 * 1000,
+//     httpOnly: true,
+//     secure: true, // Required for Vercel
+//     sameSite: 'lax',
+//   }
+//};
+
 const sessionOptions = {
   store,
-  // secret: process.env.SECRET,
-   secret: process.env.SECRET || "mysupersecret", 
+  secret: process.env.SECRET || "mysupersecret", 
   resave: false,
   saveUninitialized: false,
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true, // Required for Vercel
+    // PRODUCTION mein true, LOCAL mein false
+    secure: process.env.NODE_ENV === "production", 
     sameSite: 'lax',
   }
 };
