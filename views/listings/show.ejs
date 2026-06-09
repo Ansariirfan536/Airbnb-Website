@@ -21,7 +21,7 @@
     <% if(currUser && listing.owner && currUser._id.toString() === listing.owner._id.toString()) { %>
     <div class="btns">
         <button type="button" onclick="showVerification('edit')" class="btn btn-dark col-2 offset-3 edit-btn mb-3">Edit 📝</button>
-        <button type="button" onclick="showVerification('delete')" class="btn btn-dark offset-5 mb-3">Delete 🗑️</button>
+        <button type="button" onclick="showVerification('delete')" class="btn btn-dark offset-5 mb-3">Delete</button>
     </div>
 
     <div id="verifyModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:20px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:9999; text-align:center; width:90%; max-width:300px; border: 2px solid transparent; display:flex; flex-direction:column; gap:15px;">

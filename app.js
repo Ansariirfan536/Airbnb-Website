@@ -1,15 +1,11 @@
-
 require("dotenv").config();
-const dns = require('node:dns');
-dns.setDefaultResultOrder('ipv4first');
-
 const express = require("express");
+const nodemailer = require("nodemailer");
 const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
 const mongoStore = require("connect-mongo");
 const flash = require("connect-flash");
@@ -17,6 +13,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 
+// Routes
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
@@ -24,136 +21,66 @@ const cartRouter = require("./routes/cart.js");
 
 const dbUrl = process.env.ATLASDB_URL;
 
+// Nodemailer Config
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+app.set('transporter', transporter);
 
-main()
-  .then(() => console.log("Connected to DB"))
-  .catch((err) => console.log("DB Connection Error:", err));
-
-async function main() {
-  await mongoose.connect(dbUrl);
-}
+main().then(() => console.log("Connected to DB")).catch((err) => console.log(err));
+async function main() { await mongoose.connect(dbUrl); }
 
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
-// VERCEL PROXY TRUST (VERY IMPORTANT FOR LOGIN)
-app.set("trust proxy", 1);
+const store = mongoStore.create({ mongoUrl: dbUrl, touchAfter: 24 * 3600 });
+app.use(session({
+    store,
+    secret: process.env.SECRET || "secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { expires: Date.now() + 7 * 24 * 60 * 60 * 1000, maxAge: 7 * 24 * 60 * 60 * 1000 }
+}));
 
-const store = mongoStore.create({
-  mongoUrl: dbUrl,
-  // crypto: { secret: process.env.SECRET },
-  touchAfter: 24 * 3600,
-});
-
-// const sessionOptions = {
-//   store,
-//   // secret: process.env.SECRET,
-//    secret: process.env.SECRET || "mysupersecret", 
-//   resave: false,
-//   saveUninitialized: false,
-//   cookie: {
-//     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-//     maxAge: 7 * 24 * 60 * 60 * 1000,
-//     httpOnly: true,
-//     secure: true, // Required for Vercel
-//     sameSite: 'lax',
-//   }
-//};
-
-const sessionOptions = {
-  store,
-  secret: process.env.SECRET || "mysupersecret", 
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    // PRODUCTION mein true, LOCAL mein false
-    secure: process.env.NODE_ENV === "production", 
-    sameSite: 'lax',
-  }
-};
-
-app.use(session(sessionOptions));
 app.use(flash());
-
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// GLOBAL MIDDLEWARE: Fixes 'TypeError: Cannot read properties of null (reading length)'
+// GLOBAL MIDDLEWARE (Fixed)
 app.use(async (req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  res.locals.currUser = req.user || null;
-
-  try {
-    let finalCart = [];
-
-    if (req.user) {
-      // Check if user has cart, else empty array
-      const userCart = (req.user && Array.isArray(req.user.cart)) ? req.user.cart : [];
-      const sessionCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
-
-      const map = new Map();
-      [...sessionCart, ...userCart].forEach(item => {
-        if (item && item.id) {
-          const qty = Number(item.qty) || 1;
-          if (map.has(item.id)) {
-            map.get(item.id).qty += qty;
-          } else {
-            map.set(item.id, { ...item, qty });
-          }
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    res.locals.currUser = req.user || null;
+    res.locals.session = req.session; 
+    
+    try {
+        if (req.user) {
+            req.session.cart = req.user.cart || [];
         }
-      });
-
-      finalCart = Array.from(map.values());
-
-      // Sync with DB
-      if (JSON.stringify(finalCart) !== JSON.stringify(userCart)) {
-        await User.findByIdAndUpdate(req.user._id, { cart: finalCart });
-      }
-      req.session.cart = finalCart;
-    } else {
-      // Guest User safe array
-      finalCart = (req.session && Array.isArray(req.session.cart)) ? req.session.cart : [];
+        res.locals.cart = req.session.cart || [];
+        res.locals.cartCount = res.locals.cart.length;
+        next();
+    } catch (err) {
+        next();
     }
+});
 
-    res.locals.cart = finalCart;
-    res.locals.cartCount = finalCart ? finalCart.length : 0; // Length check safe here
-    next();
-  } catch (err) {
-    console.error("Middleware Error:", err);
-    res.locals.cart = [];
-    res.locals.cartCount = 0;
-    next();
-  }
-});
-app.get("/", (req, res) => {
-  res.redirect("/listings");
-});
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/cart", cartRouter);
 app.use("/", userRouter);
 
-app.all("*", (req, res, next) => {
-  next(new ExpressError(404, "Page Not Found!"));
-});
-
-app.use((err, req, res, next) => {
-  let { statusCode = 500, message = "Something went wrong!!" } = err;
-  res.status(statusCode).render("error.ejs", { message });
-});
-
-const PORT = 8080;
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+app.listen(8080, () => { console.log("Server listening on port 8080"); });

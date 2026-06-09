@@ -1,0 +1,54 @@
+<% layout("/layouts/boilerplate")%>
+<style>
+    .otp-container { max-width: 400px; margin: auto; }
+    @media (max-width: 576px) { .otp-container { width: 95%; margin-top: 20px; } }
+</style>
+
+<div class="container mt-5 otp-container">
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <h3 class="card-title text-center">Verify your Email</h3>
+            <p class="card-text text-center text-muted">Sent OTP to <b><%= typeof email !== 'undefined' ? email : 'your email' %></b></p>
+            
+            <form action="/verify" method="POST" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <input name="otp" type="text" class="form-control text-center" placeholder="Enter OTP " required maxlength="6" style="font-size: 1.2rem; letter-spacing: 3px;">
+                </div>
+                <button class="btn btn-success w-100">Verify & Sign Up</button>
+            </form>
+
+            <hr>
+            <div class="text-center mt-2">
+                <p id="timerText">Resend OTP in: <span id="count"><%= typeof timeLeft !== 'undefined' ? timeLeft : 600 %></span>s</p>
+                <form id="resendForm" action="/signup" method="POST" style="display:none;">
+                    <input type="hidden" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>">
+                    <button type="submit" class="btn btn-link p-0 text-decoration-none">Resend OTP</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JS mein bhi safe parse
+    let timeLeft = parseInt("<%= typeof timeLeft !== 'undefined' ? timeLeft : 600 %>") || 600;
+    
+    const countSpan = document.getElementById('count');
+    const timerText = document.getElementById('timerText');
+    const resendForm = document.getElementById('resendForm');
+    
+    if(timeLeft > 0) {
+        const interval = setInterval(() => {
+            timeLeft--;
+            if(countSpan) countSpan.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                if(timerText) timerText.style.display = 'none';
+                if(resendForm) resendForm.style.display = 'block';
+            }
+        }, 1000);
+    } else {
+        if(timerText) timerText.style.display = 'none';
+        if(resendForm) resendForm.style.display = 'block';
+    }
+</script>

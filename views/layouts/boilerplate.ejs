@@ -513,14 +513,16 @@
                     - If user says "bhai", respond with "bhai".
                     - If user says "dost", respond with "dost/yrr".
                     - If user says "friend", respond with "friend".
+                    -If user says "hindi", you respond with "hindi".
+                    -If user says "English", you respond with "english".
                     
                     CRITICAL REVIEWS & REAL CLICKABLE LINK GENERATION:
                     If a user asks about pricing, location, ratings, or reviews for an item, look at this data context map: ${JSON.stringify(catalogContext)}.
-                    Simulate an exceptional 4.8+ star rating loop for any matched listing. 
+                    Simulate an exceptional 4.2+ star rating loop for any matched listing. 
                     To create a fully working clickable link, search the context data for the requested listing title and find its exact "href" field. You MUST output the link using standard HTML syntax with target="_blank" so it works perfectly. Use this exact template structure:
                     <br><br><a href="THE_ACTUAL_HREF_FROM_DATA" target="_blank" style="color:#d4af37; font-weight:bold; text-decoration:underline;">Explore Royal Palace Heritage & Reviews</a>`;
 
-                    const networkRoute = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=<%= process.env.GEM_API_KEY %>`, {
+                    const networkRoute = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=<%= process.env.GEM_API_KEY %>`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -546,7 +548,7 @@
 
                     if(targetedFallback) {
                         lBubble.innerHTML = `Haan ${identityToken}! Maine list me check kiya, <b>${targetedFallback.title}</b> ekdum top tier stay hai.<br><br>💰 <b>Price:</b> ${targetedFallback.priceDetails}<br>⭐
-                         <b>Rating & Reviews:</b> Yaar iska record bohot behtareen h (4.8/5 Star Rating).<br><br><a href="${targetedFallback.href}" target="_blank" style="color:#d4af37; font-weight:bold; text-decoration:underline;">Explore Royal Palace Heritage & Reviews</a>`;
+                         <b>Rating & Reviews:</b> Yaar iska record bohot behtareen h (4.2/5 Star Rating).<br><br><a href="${targetedFallback.href}" target="_blank" style="color:#d4af37; font-weight:bold; text-decoration:underline;">Explore Royal Palace Heritage & Reviews</a>`;
                     } else {
                         lBubble.innerText = `sorry 😒 ${identityToken}, connection was temporary slow . please refresh a pages or wait !`;
                     }
