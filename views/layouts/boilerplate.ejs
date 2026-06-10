@@ -1,565 +1,1026 @@
-<!-- ==================================================================== -->
+
+
 <!-- APPLICATION COMPONENT: 100% PERFECT FIXED MOBILE BOTTOM INPUT CHAT   -->
+
 <!-- PATH: views/layouts/boilerplate.ejs                                 -->
+
 <!-- ==================================================================== -->
 
 <!DOCTYPE html>
+
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
     <title>Wanderlust - India's Finest Heritage Stays</title>
-    
+
     <!-- Custom and Core Typography Stylesheets (Your Original Links) -->
-    <link rel="stylesheet" href="/css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Roboto:wght@300;400;500;900&display=swap" rel="stylesheet">
-    <link href="/css/rating.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Roboto:wght@300;400;500;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link href="/css/rating.css" rel="stylesheet" />
 
     <!-- Interactive AI Responsive Layout presentation Style -->
+
     <style>
-        #genius-chat-root { 
-            position: fixed; 
-            bottom: 30px; 
-            right: 30px; 
-            z-index: 999999 !important; 
-            font-family: "Plus Jakarta Sans", sans-serif;
-        }
-        
-        #genius-chat-trigger { 
-            background: #1e1610; 
-            color: #d4af37; 
-            border: 2px solid #d4af37; 
-            border-radius: 50px; 
-            padding: 10px 24px; 
-            font-weight: 600; 
-            box-shadow: 0 6px 20px rgba(30,22,16,0.4); 
-            cursor: pointer; 
-            transition: 0.3s ease; 
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        #genius-chat-trigger:hover { transform: translateY(-3px); background: #2d2219; }
+      #genius-chat-root {
+        position: fixed;
 
+        bottom: 30px;
+
+        right: 30px;
+
+        z-index: 999999 !important;
+
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      #genius-chat-trigger {
+        background: #1e1610;
+
+        color: #d4af37;
+
+        border: 2px solid #d4af37;
+
+        border-radius: 50px;
+
+        padding: 10px 24px;
+
+        font-weight: 600;
+
+        box-shadow: 0 6px 20px rgba(30, 22, 16, 0.4);
+
+        cursor: pointer;
+
+        transition: 0.3s ease;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+      }
+
+      #genius-chat-trigger:hover {
+        transform: translateY(-3px);
+        background: #2d2219;
+      }
+
+      #ai-teacher-portal {
+        position: fixed;
+
+        top: 0;
+
+        left: 0;
+
+        width: 100vw;
+
+        height: 100vh;
+
+        height: 100dvh;
+        /* Dynamic Viewport Height for mobile browsers */
+
+        background: rgba(15, 11, 8, 0.98);
+
+        z-index: 1000000 !important;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-family: "Plus Jakarta Sans", sans-serif;
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        transition: opacity 0.3s ease;
+
+        padding: 20px;
+      }
+
+      #ai-teacher-portal.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .portal-container {
+        width: 100%;
+
+        max-width: 1100px;
+
+        height: 85vh;
+
+        height: 85dvh;
+
+        display: flex;
+
+        background: #251c14;
+
+        border-radius: 24px;
+
+        border: 2px solid #d4af37;
+
+        overflow: hidden;
+
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+
+        transition: all 0.3s ease;
+      }
+
+      /* LEFT PANEL: PHOTO FRAME WITH SPEAKING WAVE ANIMATION LAYER */
+
+      .avatar-display-pane {
+        flex: 1.1;
+
+        background: #1c150f
+          url("https://res.cloudinary.com/dumxud2fo/image/upload/v1780749990/Gemini_Generated_Image_8wcm0e8wcm0e8wcm_plftry.png")
+          no-repeat;
+
+        background-size: contain;
+
+        background-position: center top;
+
+        position: relative;
+
+        border-right: 2px solid #d4af37;
+
+        transition: all 0.3s ease;
+      }
+
+      .avatar-display-pane.speaking {
+        box-shadow: inset 0 0 60px rgba(212, 175, 55, 0.6);
+
+        animation: pictureVibe 0.5s infinite alternate;
+      }
+
+      @keyframes pictureVibe {
+        0% {
+          filter: brightness(1);
+        }
+
+        100% {
+          filter: brightness(1.15);
+        }
+      }
+
+      .voice-wave-container {
+        position: absolute;
+
+        top: 20px;
+
+        right: 20px;
+
+        display: flex;
+
+        align-items: flex-end;
+
+        gap: 4px;
+
+        height: 30px;
+
+        opacity: 0;
+
+        transition: opacity 0.3s ease;
+
+        z-index: 10;
+      }
+
+      .avatar-display-pane.speaking .voice-wave-container {
+        opacity: 1;
+      }
+
+      .wave-bar {
+        width: 4px;
+
+        height: 10px;
+
+        background: #d4af37;
+
+        border-radius: 2px;
+
+        animation: bounceBars 0.6s infinite alternate;
+      }
+
+      .wave-bar:nth-child(2) {
+        animation-delay: 0.15s;
+        height: 20px;
+      }
+
+      .wave-bar:nth-child(3) {
+        animation-delay: 0.3s;
+        height: 28px;
+      }
+
+      .wave-bar:nth-child(4) {
+        animation-delay: 0.45s;
+        height: 15px;
+      }
+
+      @keyframes bounceBars {
+        0% {
+          height: 5px;
+        }
+
+        100% {
+          height: 30px;
+        }
+      }
+
+      .avatar-overlay-gradient {
+        position: absolute;
+
+        bottom: 0;
+
+        left: 0;
+
+        width: 100%;
+
+        height: 50%;
+
+        background: linear-gradient(transparent, rgba(37, 28, 20, 0.95) 70%);
+
+        display: flex;
+
+        flex-direction: column;
+
+        justify-content: flex-end;
+
+        padding: 30px;
+      }
+
+      .avatar-status-badge {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        background: rgba(212, 175, 55, 0.2);
+
+        border: 1px solid #d4af37;
+
+        color: #d4af37;
+
+        padding: 6px 16px;
+
+        border-radius: 20px;
+
+        font-size: 0.85rem;
+
+        width: max-content;
+
+        margin-bottom: 10px;
+      }
+
+      .pulse-dot {
+        width: 8px;
+
+        height: 8px;
+
+        background: #d4af37;
+
+        border-radius: 50%;
+
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+
+        50% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+      }
+
+      /* RIGHT PANEL: Terminal Grid */
+
+      .chat-interaction-pane {
+        flex: 1;
+
+        display: flex;
+
+        flex-direction: column;
+
+        background: #1c150f;
+
+        min-height: 0;
+
+        position: relative;
+      }
+
+      .portal-header {
+        padding: 20px;
+
+        background: #251c14;
+
+        border-bottom: 1px solid #3d2e21;
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        flex-shrink: 0;
+      }
+
+      .portal-close-btn {
+        background: none;
+
+        border: none;
+
+        color: #d4af37;
+
+        font-size: 2rem;
+
+        cursor: pointer;
+
+        transition: transform 0.2s;
+
+        line-height: 1;
+      }
+
+      .portal-chat-body {
+        flex: 1;
+
+        padding: 24px;
+
+        overflow-y: auto;
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 16px;
+
+        min-height: 0;
+      }
+
+      .portal-bubble {
+        padding: 14px 20px;
+
+        border-radius: 16px;
+
+        max-width: 85%;
+
+        font-size: 0.95rem;
+
+        line-height: 1.5;
+
+        word-wrap: break-word;
+      }
+
+      .bot-p {
+        background: #2d2218;
+
+        color: #f7f3ed;
+
+        align-self: flex-start;
+
+        border-top-left-radius: 2px;
+
+        border: 1px solid #3d2e21;
+      }
+
+      .user-p {
+        background: #d4af37;
+
+        color: #1e1610;
+
+        align-self: flex-end;
+
+        border-top-right-radius: 2px;
+
+        font-weight: 500;
+      }
+
+      .portal-footer {
+        padding: 20px;
+
+        background: #251c14;
+
+        border-top: 1px solid #3d2e21;
+
+        display: flex;
+
+        gap: 12px;
+
+        flex-shrink: 0;
+      }
+
+      .portal-input {
+        flex: 1;
+
+        background: #110d0a;
+
+        border: 1px solid #4a3827;
+
+        border-radius: 30px;
+
+        padding: 12px 24px;
+
+        color: #f7f3ed;
+
+        outline: none;
+
+        font-size: 0.95rem;
+
+        min-width: 0;
+      }
+
+      .portal-input:focus {
+        border-color: #d4af37;
+      }
+
+      .portal-send-btn {
+        background: #d4af37;
+
+        color: #1e1610;
+
+        border: none;
+
+        width: 48px;
+
+        height: 48px;
+
+        border-radius: 50%;
+
+        cursor: pointer;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 1.1rem;
+
+        flex-shrink: 0;
+      }
+
+      /* ==================================================================== */
+
+      /* RESPONSIVE MEDIA BREAKPOINTS (THE ULTIMATE MOBILE HEIGHT FIX)        */
+
+      /* ==================================================================== */
+
+      @media (max-width: 992px) {
         #ai-teacher-portal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            height: 100dvh; /* Dynamic Viewport Height for mobile browsers */
-            background: rgba(15, 11, 8, 0.98);
-            z-index: 1000000 !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: "Plus Jakarta Sans", sans-serif;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            padding: 20px;
+          padding: 0;
         }
-
-        #ai-teacher-portal.active { opacity: 1; pointer-events: auto; }
 
         .portal-container {
-            width: 100%;
-            max-width: 1100px;
-            height: 85vh;
-            height: 85dvh;
-            display: flex;
-            background: #251c14;
-            border-radius: 24px;
-            border: 2px solid #d4af37;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
+          width: 100%;
+
+          height: 100vh;
+
+          height: 100dvh;
+          /* Dynamic full screen lock */
+
+          border-radius: 0;
+
+          border: none;
+
+          flex-direction: column;
         }
 
-        /* LEFT PANEL: PHOTO FRAME WITH SPEAKING WAVE ANIMATION LAYER */
         .avatar-display-pane {
-            flex: 1.1;
-            background: #1c150f url('https://res.cloudinary.com/dumxud2fo/image/upload/v1780749990/Gemini_Generated_Image_8wcm0e8wcm0e8wcm_plftry.png') no-repeat;
-            background-size: contain;
-            background-position: center top;
-            position: relative;
-            border-right: 2px solid #d4af37;
-            transition: all 0.3s ease;
-        }
+          flex: 0 0 70px;
+          /* Heavily compressed on mobile to maximize chat area */
 
-        .avatar-display-pane.speaking {
-            box-shadow: inset 0 0 60px rgba(212, 175, 55, 0.6);
-            animation: pictureVibe 0.5s infinite alternate;
-        }
+          border-right: none;
 
-        @keyframes pictureVibe {
-            0% { filter: brightness(1); }
-            100% { filter: brightness(1.15); }
-        }
+          border-bottom: 1px solid #d4af37;
 
-        .voice-wave-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            height: 30px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 10;
-        }
-
-        .avatar-display-pane.speaking .voice-wave-container { opacity: 1; }
-
-        .wave-bar {
-            width: 4px;
-            height: 10px;
-            background: #d4af37;
-            border-radius: 2px;
-            animation: bounceBars 0.6s infinite alternate;
-        }
-        .wave-bar:nth-child(2) { animation-delay: 0.15s; height: 20px; }
-        .wave-bar:nth-child(3) { animation-delay: 0.3s; height: 28px; }
-        .wave-bar:nth-child(4) { animation-delay: 0.45s; height: 15px; }
-
-        @keyframes bounceBars {
-            0% { height: 5px; }
-            100% { height: 30px; }
+          background-position: center 5%;
         }
 
         .avatar-overlay-gradient {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background: linear-gradient(transparent, rgba(37, 28, 20, 0.95) 70%);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 30px;
+          height: 100%;
+
+          background: linear-gradient(
+            rgba(37, 28, 20, 0.4),
+            rgba(37, 28, 20, 0.95)
+          );
+
+          padding: 10px 15px;
+
+          display: flex;
+
+          flex-direction: row;
+
+          align-items: center;
+
+          justify-content: space-between;
         }
+
+        .avatar-overlay-gradient h3 {
+          font-size: 0.95rem;
+          margin: 0;
+        }
+
+        .avatar-overlay-gradient p {
+          display: none;
+        }
+
+        /* Saved space */
 
         .avatar-status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(212, 175, 55, 0.2);
-            border: 1px solid #d4af37;
-            color: #d4af37;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            width: max-content;
-            margin-bottom: 10px;
+          margin-bottom: 0;
+          padding: 2px 8px;
+          font-size: 0.65rem;
         }
 
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: #d4af37;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
+        .voice-wave-container {
+          position: static;
+          height: 15px;
+          transform: none;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.8); opacity: 0.5; }
+        .wave-bar {
+          width: 2px;
         }
 
-        /* RIGHT PANEL: Terminal Grid */
         .chat-interaction-pane {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #1c150f;
-            min-height: 0;
-            position: relative;
+          flex: 1;
+
+          display: flex;
+
+          flex-direction: column;
+
+          height: calc(100dvh - 70px);
+
+          overflow: hidden;
+        }
+      }
+
+      @media (max-width: 576px) {
+        #genius-chat-root {
+          bottom: 20px;
+          right: 20px;
+        }
+
+        #genius-chat-trigger {
+          padding: 8px 18px;
+          font-size: 0.85rem;
+          gap: 8px;
         }
 
         .portal-header {
-            padding: 20px;
-            background: #251c14;
-            border-bottom: 1px solid #3d2e21;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
+          padding: 8px 14px;
+          background: #1c150f;
         }
 
-        .portal-close-btn {
-            background: none;
-            border: none;
-            color: #d4af37;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-            line-height: 1;
+        .portal-header h5 {
+          font-size: 0.85rem;
         }
 
         .portal-chat-body {
-            flex: 1;
-            padding: 24px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            min-height: 0;
+          padding: 12px;
+
+          gap: 10px;
+
+          padding-bottom: 80px;
+          /* Safe padding so messages never hide behind footer */
         }
 
         .portal-bubble {
-            padding: 14px 20px;
-            border-radius: 16px;
-            max-width: 85%;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            word-wrap: break-word;
+          max-width: 88%;
+          font-size: 0.85rem;
+          padding: 10px 12px;
         }
 
-        .bot-p {
-            background: #2d2218;
-            color: #f7f3ed;
-            align-self: flex-start;
-            border-top-left-radius: 2px;
-            border: 1px solid #3d2e21;
-        }
-
-        .user-p {
-            background: #d4af37;
-            color: #1e1610;
-            align-self: flex-end;
-            border-top-right-radius: 2px;
-            font-weight: 500;
-        }
+        /* SYSTEM FORCED FIXED BOTTOM PANEL FOR MOBILE INPUT FIX */
 
         .portal-footer {
-            padding: 20px;
-            background: #251c14;
-            border-top: 1px solid #3d2e21;
-            display: flex;
-            gap: 12px;
-            flex-shrink: 0;
+          position: absolute;
+
+          bottom: 0;
+
+          left: 0;
+
+          width: 100%;
+
+          padding: 10px 12px;
+
+          gap: 8px;
+
+          background: #251c14;
+
+          border-top: 1px solid #3d2e21;
+
+          z-index: 99999;
+
+          box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.4);
         }
 
         .portal-input {
-            flex: 1;
-            background: #110d0a;
-            border: 1px solid #4a3827;
-            border-radius: 30px;
-            padding: 12px 24px;
-            color: #f7f3ed;
-            outline: none;
-            font-size: 0.95rem;
-            min-width: 0;
+          padding: 8px 16px;
+          font-size: 0.85rem;
+          height: 38px;
         }
-
-        .portal-input:focus { border-color: #d4af37; }
 
         .portal-send-btn {
-            background: #d4af37;
-            color: #1e1610;
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            flex-shrink: 0;
+          width: 38px;
+          height: 38px;
+          font-size: 0.85rem;
         }
+      }
+    </style>
+  </head>
 
-        /* ==================================================================== */
-        /* RESPONSIVE MEDIA BREAKPOINTS (THE ULTIMATE MOBILE HEIGHT FIX)        */
-        /* ==================================================================== */
-        @media (max-width: 992px) {
-            #ai-teacher-portal { padding: 0; } 
-            
-            .portal-container {
-                width: 100%;
-                height: 100vh;
-                height: 100dvh; /* Dynamic full screen lock */
-                border-radius: 0;
-                border: none;
-                flex-direction: column;
-            }
-
-            .avatar-display-pane {
-                flex: 0 0 70px; /* Heavily compressed on mobile to maximize chat area */
-                border-right: none;
-                border-bottom: 1px solid #d4af37;
-                background-position: center 5%;
-            }
-
-            .avatar-overlay-gradient {
-                height: 100%;
-                background: linear-gradient(rgba(37, 28, 20, 0.4), rgba(37, 28, 20, 0.95));
-                padding: 10px 15px;
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
-
-            .avatar-overlay-gradient h3 { font-size: 0.95rem; margin: 0; }
-            .avatar-overlay-gradient p { display: none; } /* Saved space */
-            .avatar-status-badge { margin-bottom: 0; padding: 2px 8px; font-size: 0.65rem; }
-            .voice-wave-container { position: static; height: 15px; transform: none; }
-            .wave-bar { width: 2px; }
-            
-            .chat-interaction-pane {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                height: calc(100dvh - 70px);
-                overflow: hidden;
-            }
-        }
-
-        @media (max-width: 576px) {
-            #genius-chat-root { bottom: 20px; right: 20px; }
-            #genius-chat-trigger { padding: 8px 18px; font-size: 0.85rem; gap: 8px; }
-            
-            .portal-header { padding: 8px 14px; background: #1c150f; }
-            .portal-header h5 { font-size: 0.85rem; }
-            
-            .portal-chat-body { 
-                padding: 12px; 
-                gap: 10px;
-                padding-bottom: 80px; /* Safe padding so messages never hide behind footer */
-            }
-            .portal-bubble { max-width: 88%; font-size: 0.85rem; padding: 10px 12px; }
-            
-            /* SYSTEM FORCED FIXED BOTTOM PANEL FOR MOBILE INPUT FIX */
-            .portal-footer { 
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                padding: 10px 12px; 
-                gap: 8px; 
-                background: #251c14;
-                border-top: 1px solid #3d2e21;
-                z-index: 99999;
-                box-shadow: 0 -5px 15px rgba(0,0,0,0.4);
-            }
-            .portal-input { padding: 8px 16px; font-size: 0.85rem; height: 38px; }
-            .portal-send-btn { width: 38px; height: 38px; font-size: 0.85rem; }
-        }
-     </style>
-</head>
-<body>
-
+  <body>
     <!-- Navigation View Include Component -->
+
     <%- include("../includes/navbar.ejs") %>
-    
+
     <div class="container">
-        <%- include("../includes/flash.ejs") %>
-        <%- body %>
+      <%- include("../includes/flash.ejs") %> <%- body %>
     </div>
 
     <%- include("../includes/footer.ejs") %>
 
     <!-- Floating Trigger Entry Point -->
+
     <div id="genius-chat-root">
-        <button id="genius-chat-trigger">
-            <img src="https://res.cloudinary.com/dumxud2fo/image/upload/v1780749990/Gemini_Generated_Image_8wcm0e8wcm0e8wcm_plftry.png" alt="Irfan AI" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #d4af37;">
-            <span>Talk to Irfan's AI</span>
-        </button>
+      <button id="genius-chat-trigger">
+        <img
+          src="https://res.cloudinary.com/dumxud2fo/image/upload/v1780749990/Gemini_Generated_Image_8wcm0e8wcm0e8wcm_plftry.png"
+          alt="Irfan AI"
+          style="
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #d4af37;
+          "
+        />
+
+        <span>Talk to Irfan's AI</span>
+      </button>
     </div>
 
     <!-- MAIN CONCIERGE PORTAL MATRICES -->
+
     <div id="ai-teacher-portal">
-        <div class="portal-container">
-            
-            <!-- LEFT AREA: Avatar Portrait Box with Audio Waves -->
-            <div class="avatar-display-pane" id="avatar-image-pane">
-                <div class="voice-wave-container">
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                </div>
+      <div class="portal-container">
+        <!-- LEFT AREA: Avatar Portrait Box with Audio Waves -->
 
-                <div class="avatar-overlay-gradient">
-                    <div class="avatar-status-badge">
-                        <div class="pulse-dot"></div>
-                        <span id="voice-status-label">Irfan's AI Ready</span>
-                    </div>
-                    <h3 style="color: #f7f3ed; margin: 0; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.9);">Wanderlust Portal</h3>
-                    <p style="color: #d4af37; font-size: 0.95rem; margin: 5px 0 0 0; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.8);">Interactive Talking Avatar Engine</p>
-                </div>
+        <div class="avatar-display-pane" id="avatar-image-pane">
+          <div class="voice-wave-container">
+            <div class="wave-bar"></div>
+
+            <div class="wave-bar"></div>
+
+            <div class="wave-bar"></div>
+
+            <div class="wave-bar"></div>
+          </div>
+
+          <div class="avatar-overlay-gradient">
+            <div class="avatar-status-badge">
+              <div class="pulse-dot"></div>
+
+              <span id="voice-status-label">Irfan's AI Ready</span>
             </div>
 
-            <!-- RIGHT AREA: Elegant Terminal Matrix -->
-            <div class="chat-interaction-pane">
-                <div class="portal-header">
-                    <h5 style="color: #f7f3ed; margin: 0; font-weight: 600;"><i class="fa-solid fa-crown" style="color: #d4af37; margin-right: 8px;"></i> Royal Chat Terminal</h5>
-                    <button class="portal-close-btn" id="portal-close-trigger">&times;</button>
-                </div>
-                
-                <div class="portal-chat-body" id="portal-chat-body">
-                    <div class="portal-bubble bot-p">
-                        Namaste @Irfan ❤️! I am your interactive voice assistant . We conversation brochara or friends you can asks about property, rates, ya ratings !!
-                    </div>
-                </div>
+            <h3
+              style="
+                color: #f7f3ed;
+                margin: 0;
+                font-weight: 700;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+              "
+            >
+              Wanderlust Portal
+            </h3>
 
-                <div class="portal-footer">
-                    <input type="text" class="portal-input" id="portal-chat-input" placeholder="Type in Hindi, English or Hinglish...">
-                    <button class="portal-send-btn" id="portal-send-trigger"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-            </div>
-
+            <p
+              style="
+                color: #d4af37;
+                font-size: 0.95rem;
+                margin: 5px 0 0 0;
+                font-weight: 600;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+              "
+            >
+              Interactive Talking Avatar Engine
+            </p>
+          </div>
         </div>
+
+        <div class="chat-interaction-pane">
+          <div class="portal-header">
+            <h5 style="color: #f7f3ed; margin: 0; font-weight: 600">
+              <i
+                class="fa-solid fa-crown"
+                style="color: #d4af37; margin-right: 8px"
+              ></i>
+              Royal Chat Terminal
+            </h5>
+
+            <button class="portal-close-btn" id="portal-close-trigger">
+              &times;
+            </button>
+          </div>
+
+          <div class="portal-chat-body" id="portal-chat-body">
+            <div class="portal-bubble bot-p">
+              Namaste @Irfan ❤️! I am your interactive voice assistant . We
+              conversation brochara or friends you can asks about property,
+              rates, ya ratings !!
+            </div>
+          </div>
+
+          <div class="portal-footer">
+            <input
+              type="text"
+              class="portal-input"
+              id="portal-chat-input"
+              placeholder="Type in Hindi, English or Hinglish..."
+            />
+
+            <button class="portal-send-btn" id="portal-send-trigger">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
     <script src="/js/script.js"></script>
 
     <!-- Interactive Logic Matrix & Multilingual Voice Synthesis Engine -->
+
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const portal = document.getElementById("ai-teacher-portal");
-            const trigger = document.getElementById("genius-chat-trigger");
-            const closeBtn = document.getElementById("portal-close-trigger");
-            const chatInput = document.getElementById("portal-chat-input");
-            const sendBtn = document.getElementById("portal-send-trigger");
-            const chatBody = document.getElementById("portal-chat-body");
-            const avatarPane = document.getElementById("avatar-image-pane");
-            const statusLabel = document.getElementById("voice-status-label");
+      document.addEventListener("DOMContentLoaded", () => {
+        const portal = document.getElementById("ai-teacher-portal");
 
-            trigger.addEventListener("click", () => { portal.classList.add("active"); });
-            closeBtn.addEventListener("click", () => { portal.classList.remove("active"); window.speechSynthesis.cancel(); });
+        const trigger = document.getElementById("genius-chat-trigger");
 
-            function speakAILine(textToSpeak, originalUserQuery) {
-                window.speechSynthesis.cancel(); 
+        const closeBtn = document.getElementById("portal-close-trigger");
 
-                let cleanTxt = textToSpeak.replace(/<\/?[^>]+(>|$)/g, " ");
-                cleanTxt = cleanTxt.replace(/Explore Royal Palace Heritage & Reviews/gi, "");
+        const chatInput = document.getElementById("portal-chat-input");
 
-                const speechUtterance = new SpeechSynthesisUtterance(cleanTxt);
-                const containsEnglishOnly = /^[a-zA-Z0-9\s,.:?'-]+$/.test(originalUserQuery);
-                
-                if (containsEnglishOnly) {
-                    speechUtterance.lang = "en-IN"; 
-                } else {
-                    speechUtterance.lang = "hi-IN"; 
-                }
+        const sendBtn = document.getElementById("portal-send-trigger");
 
-                const availableVoices = window.speechSynthesis.getVoices();
-                const maleVoice = availableVoices.find(v => 
-                    (v.lang.includes(speechUtterance.lang) && (v.name.toLowerCase().includes("male") || v.name.toLowerCase().includes("google") || v.name.toLowerCase().includes("ravi") || v.name.toLowerCase().includes("david")))
-                );
-                if(maleVoice) speechUtterance.voice = maleVoice;
+        const chatBody = document.getElementById("portal-chat-body");
 
-                speechUtterance.rate = 1.05; 
-                speechUtterance.pitch = 0.95; 
+        const avatarPane = document.getElementById("avatar-image-pane");
 
-                speechUtterance.onstart = () => {
-                    avatarPane.classList.add("speaking");
-                    statusLabel.innerText = "Irfan's AI is speaking...";
-                };
-                speechUtterance.onend = () => {
-                    avatarPane.classList.remove("speaking");
-                    statusLabel.innerText = "Irfan's AI Ready";
-                };
+        const statusLabel = document.getElementById("voice-status-label");
 
-                window.speechSynthesis.speak(speechUtterance);
-            }
+        trigger.addEventListener("click", () => {
+          portal.classList.add("active");
+        });
 
-            async function processPortalAI() {
-                const queryText = chatInput.value.trim();
-                if(queryText === "") return;
+        closeBtn.addEventListener("click", () => {
+          portal.classList.remove("active");
+          window.speechSynthesis.cancel();
+        });
 
-                const uBubble = document.createElement("div");
-                uBubble.className = "portal-bubble user-p";
-                uBubble.innerText = queryText;
-                chatBody.appendChild(uBubble);
-                chatInput.value = "";
-                chatBody.scrollTop = chatBody.scrollHeight;
+        function speakAILine(textToSpeak, originalUserQuery) {
+          window.speechSynthesis.cancel();
 
-                const lBubble = document.createElement("div");
-                lBubble.className = "portal-bubble bot-p";
-                lBubble.innerHTML = "<i>Analyzing query and matching audio configurations...</i>";
-                chatBody.appendChild(lBubble);
-                chatBody.scrollTop = chatBody.scrollHeight;
+          let cleanTxt = textToSpeak.replace(/<\/?[^>]+(>|$)/g, " ");
 
-                const activeCards = Array.from(document.querySelectorAll('.card, .listing-item, .listing-card'));
-                const catalogContext = activeCards.map(c => {
-                    const titleNode = c.querySelector('b, .card-title');
-                    const textNode = c.querySelector('.card-text');
-                    const linkNode = c.querySelector('a');
-                    return {
-                        title: titleNode ? titleNode.innerText.trim() : 'Premium Stay',
-                        location: c.dataset.location || 'India',
-                        priceDetails: textNode ? textNode.innerText.trim() : 'Pricing details',
-                        href: linkNode ? linkNode.href : '#'
-                    };
-                });
+          cleanTxt = cleanTxt.replace(
+            /Explore Royal Palace Heritage & Reviews/gi,
+            "",
+          );
 
-                try {
-                    const systemPromptRule = `You are a professional, friendly, and young male AI Irfan's assistant for "Wanderlust Heritage Stays".
+          const speechUtterance = new SpeechSynthesisUtterance(cleanTxt);
+
+          const containsEnglishOnly = /^[a-zA-Z0-9\s,.:?'-]+$/.test(
+            originalUserQuery,
+          );
+
+          if (containsEnglishOnly) {
+            speechUtterance.lang = "en-IN";
+          } else {
+            speechUtterance.lang = "hi-IN";
+          }
+
+          const availableVoices = window.speechSynthesis.getVoices();
+
+          const maleVoice = availableVoices.find(
+            (v) =>
+              v.lang.includes(speechUtterance.lang) &&
+              (v.name.toLowerCase().includes("male") ||
+                v.name.toLowerCase().includes("google") ||
+                v.name.toLowerCase().includes("ravi") ||
+                v.name.toLowerCase().includes("david")),
+          );
+
+          if (maleVoice) speechUtterance.voice = maleVoice;
+
+          speechUtterance.rate = 1.05;
+
+          speechUtterance.pitch = 0.95;
+
+          speechUtterance.onstart = () => {
+            avatarPane.classList.add("speaking");
+
+            statusLabel.innerText = "Irfan's AI is speaking...";
+          };
+
+          speechUtterance.onend = () => {
+            avatarPane.classList.remove("speaking");
+
+            statusLabel.innerText = "Irfan's AI Ready";
+          };
+
+          window.speechSynthesis.speak(speechUtterance);
+        }
+
+        async function processPortalAI() {
+          const queryText = chatInput.value.trim();
+
+          if (queryText === "") return;
+
+          const uBubble = document.createElement("div");
+
+          uBubble.className = "portal-bubble user-p";
+
+          uBubble.innerText = queryText;
+
+          chatBody.appendChild(uBubble);
+
+          chatInput.value = "";
+
+          chatBody.scrollTop = chatBody.scrollHeight;
+
+          const lBubble = document.createElement("div");
+
+          lBubble.className = "portal-bubble bot-p";
+
+          lBubble.innerHTML =
+            "<i>Analyzing query and matching audio configurations...</i>";
+
+          chatBody.appendChild(lBubble);
+
+          chatBody.scrollTop = chatBody.scrollHeight;
+
+          const activeCards = Array.from(
+            document.querySelectorAll(".card, .listing-item, .listing-card"),
+          );
+
+          const catalogContext = activeCards.map((c) => {
+            const titleNode = c.querySelector("b, .card-title");
+
+            const textNode = c.querySelector(".card-text");
+
+            const linkNode = c.querySelector("a");
+
+            return {
+              title: titleNode ? titleNode.innerText.trim() : "Premium Stay",
+
+              location: c.dataset.location || "India",
+
+              priceDetails: textNode
+                ? textNode.innerText.trim()
+                : "Pricing details",
+
+              href: linkNode ? linkNode.href : "#",
+            };
+          });
+
+          try {
+            const systemPromptRule = `You are a professional, friendly, and young male AI Irfan's assistant for "Wanderlust Heritage Stays".
+
                     
+
                     CRITICAL REFLECTION RULE:
+
                     Mirror user vocabulary words instantly:
+
                     - If user says "bhai", respond with "bhai".
+
                     - If user says "dost", respond with "dost/yrr".
+
                     - If user says "friend", respond with "friend".
+
                     -If user says "hindi", you respond with "hindi".
+
                     -If user says "English", you respond with "english".
+
                     
+
                     CRITICAL REVIEWS & REAL CLICKABLE LINK GENERATION:
+
                     If a user asks about pricing, location, ratings, or reviews for an item, look at this data context map: ${JSON.stringify(catalogContext)}.
+
                     Simulate an exceptional 4.2+ star rating loop for any matched listing. 
+
                     To create a fully working clickable link, search the context data for the requested listing title and find its exact "href" field. You MUST output the link using standard HTML syntax with target="_blank" so it works perfectly. Use this exact template structure:
+
                     <br><br><a href="THE_ACTUAL_HREF_FROM_DATA" target="_blank" style="color:#d4af37; font-weight:bold; text-decoration:underline;">Explore Royal Palace Heritage & Reviews</a>`;
 
-                    const networkRoute = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=<%= process.env.GEM_API_KEY %>`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            contents: [{ role: "user", parts: [{ text: systemPromptRule + "\n\nUser Query: " + queryText }] }]
-                        })
-                    });
+            const networkRoute = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=<%= process.env.GEM_API_KEY %>`,
+              {
+                method: "POST",
 
-                    const parsedPayload = await networkRoute.json();
-                    let responseContent = parsedPayload.candidates[0].content.parts[0].text;
-                    responseContent = responseContent.replace(/\n/g, "<br>");
-                    
-                    lBubble.innerHTML = responseContent;
-                    speakAILine(responseContent, queryText); 
+                headers: { "Content-Type": "application/json" },
 
-                } catch(e) {
-                    let targetedFallback = null;
-                    catalogContext.forEach(el => {
-                        if(queryText.toLowerCase().includes(el.title.toLowerCase())) targetedFallback = el;
-                    });
+                body: JSON.stringify({
+                  contents: [
+                    {
+                      role: "user",
+                      parts: [
+                        {
+                          text:
+                            systemPromptRule + "\n\nUser Query: " + queryText,
+                        },
+                      ],
+                    },
+                  ],
+                }),
+              },
+            );
+            const parsedPayload = await networkRoute.json();
+            let responseContent = parsedPayload.response;
+            responseContent = responseContent.replace(/\n/g, "<br>");
+            lBubble.innerHTML = responseContent;
+            speakAILine(responseContent, queryText);
+            lBubble.innerHTML = responseContent;
+            speakAILine(responseContent, queryText);
+          } catch (e) {
+            let targetedFallback = null;
 
-                    let identityToken = "bhai";
-                    if(queryText.toLowerCase().includes("dost")) identityToken = "dost";
+            catalogContext.forEach((el) => {
+              if (queryText.toLowerCase().includes(el.title.toLowerCase()))
+                targetedFallback = el;
+            });
 
-                    if(targetedFallback) {
-                        lBubble.innerHTML = `Haan ${identityToken}! Maine list me check kiya, <b>${targetedFallback.title}</b> ekdum top tier stay hai.<br><br>💰 <b>Price:</b> ${targetedFallback.priceDetails}<br>⭐
+            let identityToken = "bhai";
+
+            if (queryText.toLowerCase().includes("dost"))
+              identityToken = "dost";
+
+            if (targetedFallback) {
+              lBubble.innerHTML = `Haan ${identityToken}! Maine list me check kiya, <b>${targetedFallback.title}</b> ekdum top tier stay hai.<br><br>💰 <b>Price:</b> ${targetedFallback.priceDetails}<br>⭐
+
                          <b>Rating & Reviews:</b> Yaar iska record bohot behtareen h (4.2/5 Star Rating).<br><br><a href="${targetedFallback.href}" target="_blank" style="color:#d4af37; font-weight:bold; text-decoration:underline;">Explore Royal Palace Heritage & Reviews</a>`;
-                    } else {
-                        lBubble.innerText = `sorry 😒 ${identityToken}, connection was temporary slow . please refresh a pages or wait !`;
-                    }
-                    speakAILine(lBubble.innerText, queryText);
-                }
-                chatBody.scrollTop = chatBody.scrollHeight;
+            } else {
+              lBubble.innerText = `sorry 😒 ${identityToken}, connection was temporary slow . please refresh a pages or wait !`;
             }
-
-            sendBtn.addEventListener("click", processPortalAI);
-            chatInput.addEventListener("keypress", (e) => { if(e.key === "Enter") processPortalAI(); });
+            speakAILine(lBubble.innerText, queryText);
+          }
+          chatBody.scrollTop = chatBody.scrollHeight;
+        }
+        sendBtn.addEventListener("click", processPortalAI);
+        chatInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") processPortalAI();
         });
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -12,6 +12,7 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const paymentRouter = require("./routes/payment.js");
 
 // Routes
 const listingRouter = require("./routes/listing.js");
@@ -42,6 +43,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
+
 
 const store = mongoStore.create({ mongoUrl: dbUrl, touchAfter: 24 * 3600 });
 app.use(session({
@@ -82,5 +84,6 @@ app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/cart", cartRouter);
 app.use("/", userRouter);
+app.use("/payment", paymentRouter);
 
 app.listen(8080, () => { console.log("Server listening on port 8080"); });

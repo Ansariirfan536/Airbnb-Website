@@ -185,3 +185,17 @@ flex: 1;
       text-decoration: none;
     
     } */
+
+
+    /* Razorpay checkout style fix */
+.razorpay-checkout-frame {
+    z-index: 9999999 !important;
+}
+
+/* Razorpay ke icons ko global img width se bachao */
+.razorpay-checkout-frame img, 
+.razorpay-checkout-frame .razorpay-logo {
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+}
