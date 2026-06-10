@@ -199,3 +199,28 @@ flex: 1;
     max-width: none !important;
     height: auto !important;
 }
+
+/* Mobile devices ke liye adjustments */
+@media (max-width: 768px) {
+    .show-card {
+        width: 90% !important; /* Card screen ke width ka 90% lega */
+        margin-left: 5% !important;
+        margin-right: 5% !important;
+    }
+    
+    .show-img {
+        height: 250px !important; /* Mobile par image ki height adjust karo */
+        object-fit: cover;
+    }
+
+    .btns {
+        display: flex;
+        flex-direction: column; /* Buttons ko stack kar do */
+        align-items: center;
+    }
+
+    .btns button {
+        width: 80% !important;
+        margin: 5px 0 !important;
+    }
+}
