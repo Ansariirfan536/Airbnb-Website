@@ -30,7 +30,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS
     }
 });
-app.set('transporter', transporter);
+app.set('transporter', transporter); // Yeh line bahut zaroori hai
 
 main().then(() => console.log("Connected to DB")).catch((err) => console.log(err));
 async function main() { await mongoose.connect(dbUrl); }
@@ -43,7 +43,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
-
 
 const store = mongoStore.create({ mongoUrl: dbUrl, touchAfter: 24 * 3600 });
 app.use(session({
@@ -61,7 +60,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// GLOBAL MIDDLEWARE (Fixed)
+// GLOBAL MIDDLEWARE
 app.use(async (req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");

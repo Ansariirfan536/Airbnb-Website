@@ -1,3 +1,5 @@
+
+
 <% layout("/layouts/boilerplate")%>
 <div class="row mt-3">
     <div class="col-8 offset-3">
@@ -6,7 +8,6 @@
 
     <div class="card col-6 offset-3 show-card listing-card">
         <span id="listing-price" style="display:none;"><%= listing.price %></span>
-
         <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image">
         <div class="card-body">
             <p><i>Owned By - <%= listing.owner ? listing.owner.username : "Unknown" %></i></p>
@@ -15,31 +16,32 @@
             <p><%= listing.location %></p>
             <p><%= listing.country %></p>
 
+            <!-- Calendar Logic -->
+            <div class="mb-3">
+                <label>Check-in Date:</label>
+                <input type="date" id="checkIn" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Check-out Date:</label>
+                <input type="date" id="checkOut" class="form-control" required>
+            </div>
+
             <form method="POST" action="/cart/add/<%= listing._id %>" style="display:inline">
                 <button class="btn btn-primary">Add to Cart</button>
             </form>
-            
             <button id="rzp-button" class="btn btn-success">Book Now - &#8377; <%= listing.price.toLocaleString("en-IN") %></button>
         </div>
     </div>
 
+    <!-- Security Verified Edit/Delete -->
     <% if(currUser && listing.owner && currUser._id.toString() === listing.owner._id.toString()) { %>
-    <div class="btns">
-        <button type="button" onclick="showVerification('edit')" class="btn btn-dark col-2 offset-3 edit-btn mb-3">Edit 📝</button>
-        <button type="button" onclick="showVerification('delete')" class="btn btn-dark offset-5 mb-3">Delete</button>
-    </div>
-
-    <div id="verifyModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:20px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:9999; text-align:center; width:90%; max-width:300px; border: 2px solid transparent; flex-direction:column; gap:15px;">
-        <h5 id="modalTitle" style="margin:0; font-size: 1.1rem; color:#333;">Security Verification</h5>
-        <canvas id="captchaCanvas" style="width:100%; height:60px; background:#f0f0f0; border-radius:5px;"></canvas>
-        <input type="text" id="userInput" placeholder="Type code here" class="form-control" style="text-align:center;">
-        <div style="display:flex; gap:10px;">
-            <button onclick="checkCode()" class="btn btn-success" style="flex:1;">Verify</button>
-            <button onclick="closeModal()" class="btn btn-secondary" style="flex:1;">Cancel</button>
-        </div>
+    <div class="btns offset-3 mb-3">
+        <button type="button" onclick="showVerification('edit')" class="btn btn-dark edit-btn">Edit 📝</button>
+        <button type="button" onclick="showVerification('delete')" class="btn btn-dark ms-2">Delete</button>
     </div>
     <% } %>
 
+    <!-- Review Section (Restored) -->
     <div class="col-8 offset-3 mb-3 mt-3">
         <hr>
         <% if(currUser) { %>
@@ -61,7 +63,7 @@
         <h4><b>All Reviews</b></h4>
         <div class="row">
             <% for(let review of listing.reviews) { %>
-            <div class="card col-md-5 mb-3">
+            <div class="card col-md-5 mb-3 ms-3">
                 <div class="card-body">
                     <h5 class="card-title">@<%= review.author ? review.author.username : "Anonymous" %></h5>
                     <p class="starability-result" data-rating="<%= review.rating %>"></p>
@@ -76,64 +78,56 @@
     </div>
 </div>
 
+<!-- Modal (Security) - Ensuring z-index and pointer-events are fine -->
+<div id="verifyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:20px; border-radius:12px; width:300px; text-align:center;">
+        <h5>Security Verification</h5>
+        <canvas id="captchaCanvas" style="width:100%; height:60px; background:#f0f0f0; border-radius:5px; margin-bottom:10px;"></canvas>
+        <input type="text" id="userInput" placeholder="Type code here" class="form-control">
+        <div style="margin-top:15px; display:flex; gap:10px;">
+            <button onclick="checkCode()" class="btn btn-success" style="flex:1;">Verify</button>
+            <button onclick="closeModal()" class="btn btn-secondary" style="flex:1;">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     // Payment Logic
-    document.getElementById('rzp-button').onclick = async function(e) {
+    document.getElementById('rzp-button').onclick = async function() {
         const price = document.getElementById("listing-price").innerText;
+        const checkIn = document.getElementById("checkIn").value;
+        const checkOut = document.getElementById("checkOut").value;
+        if(!checkIn || !checkOut) { alert("Please select dates!"); return; }
         
-        const response = await fetch("/payment/create-order", { 
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ price: price }) 
-        });
+        const response = await fetch("/payment/create-order", { method: "POST", headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ price }) });
         const order = await response.json();
 
         const options = {
-            "key": "<%= process.env.RAZORPAY_KEY_ID %>", 
+            "key": "<%= process.env.RAZORPAY_KEY_ID %>",
             "order_id": order.id,
             "name": "Wanderlust",
-            "description": "Stay Booking Payment",
             "handler": async function (response) {
-    try {
-        // Email trigger karo
-        const emailRes = await fetch("/payment/send-confirmation", { 
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId: response.razorpay_payment_id }) 
-        });
-        
-        const emailData = await emailRes.json();
-        
-        if (emailRes.ok) {
-            alert("Payment Success & Confirmation Email Sent!");
-            window.location.reload(); // Page refresh taaki state update ho jaye
-        } else {
-            alert("Payment Success, but email failed: " + emailData.error);
-        }
-    } catch (err) {
-        console.error("Error:", err);
-        alert("Something went wrong!");
-    }
-},
+                const emailRes = await fetch("/payment/send-confirmation", { 
+                    method: "POST", headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ paymentId: response.razorpay_payment_id, checkIn, checkOut, listingTitle: "<%= listing.title %>", listingLocation: "<%= listing.location %>" }) 
+                });
+                if (emailRes.ok) { alert("Payment Success! Confirmation PDF emailed."); window.location.reload(); }
+                else { alert("Payment success, but email failed."); }
+            },
             "theme": { "color": "#d4af37" }
         };
-        const rzp1 = new Razorpay(options);
-        rzp1.open();
+        new Razorpay(options).open();
     };
 
-    // Verification Logic
-    let currentAction = "";
-    let generatedCode = "";
+    // Modal Logic
+    let currentAction = "", generatedCode = "";
     function showVerification(action) {
         currentAction = action;
         generatedCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         document.getElementById('verifyModal').style.display = 'flex';
-        let canvas = document.getElementById('captchaCanvas');
-        let ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, 150, 60);
-        ctx.font = "bold 25px Arial";
-        ctx.fillText(generatedCode, 25, 40);
+        let ctx = document.getElementById('captchaCanvas').getContext('2d');
+        ctx.clearRect(0, 0, 150, 60); ctx.font = "bold 25px Arial"; ctx.fillText(generatedCode, 25, 40);
     }
     function closeModal() { document.getElementById('verifyModal').style.display = 'none'; }
     function checkCode() {
@@ -141,12 +135,10 @@
         if (userVal.toUpperCase() === generatedCode) {
             if (currentAction === 'edit') window.location.href = "/listings/<%= listing._id %>/edit";
             else {
-                let form = document.createElement('form');
-                form.method = 'POST'; form.action = '/listings/<%= listing._id %>?_method=DELETE';
+                let form = document.createElement('form'); form.method = 'POST'; 
+                form.action = '/listings/<%= listing._id %>?_method=DELETE';
                 document.body.appendChild(form); form.submit();
             }
-        } else {
-            alert("Wrong Code!");
-        }
+        } else { alert("Wrong Code!"); }
     }
 </script>
