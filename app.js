@@ -79,6 +79,11 @@ app.use(async (req, res, next) => {
     }
 });
 
+// Root route (Home page)
+app.get("/", (req, res) => {
+    res.redirect("/listings"); // User ko seedha /listings par bhejo
+});
+
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/cart", cartRouter);
