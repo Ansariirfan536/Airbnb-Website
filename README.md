@@ -2,7 +2,7 @@
 ## Features:
 UserAuthentication, Authorization Listings(CRUD),Review
 I use a nodemailer for Authentication 
-#I use rozarPay Api for payments
+## I use rozarPay Api for payments & use pdfkit to genrate a pdf recipt
 ## Tech Stack:
 Node.js, Express and MongoDB
 ## Live link:
