@@ -66,7 +66,6 @@ router.post("/send-confirmation", isLoggedIn, async (req, res) => {
       
         const uniqueData = `https://vercel.app{paymentId}&user=${req.user.username}`;
 
-
         qrBuffer = await QRCode.toBuffer(uniqueData, {
             errorCorrectionLevel: 'H',
             margin: 1,
