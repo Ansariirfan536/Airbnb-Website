@@ -87,3 +87,5 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.addEventListener("click", processPortalAI);
     chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") processPortalAI(); });
 });
+
+
