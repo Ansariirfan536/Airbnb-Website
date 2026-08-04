@@ -227,3 +227,29 @@ flex: 1;
 .disclaimer{
     color: red;
 }
+.nav-link-a {
+  position: relative;
+  text-decoration: none;
+}
+
+
+.nav-link-a::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 25px; 
+  left: 60%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+.nav-link-a:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
