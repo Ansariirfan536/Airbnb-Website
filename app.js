@@ -30,7 +30,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS
     }
 });
-app.set('transporter', transporter); // Yeh line bahut zaroori hai
+app.set('transporter', transporter); 
 
 main().then(() => console.log("Connected to DB")).catch((err) => console.log(err));
 async function main() { await mongoose.connect(dbUrl); }
@@ -81,7 +81,7 @@ app.use(async (req, res, next) => {
 
 // Root route (Home page)
 app.get("/", (req, res) => {
-    res.redirect("/listings"); // User ko seedha /listings par bhejo
+    res.redirect("/listings"); 
 });
 
 app.use("/listings", listingRouter);
@@ -90,4 +90,55 @@ app.use("/cart", cartRouter);
 app.use("/", userRouter);
 app.use("/payment", paymentRouter);
 
+// AI Chat API Route for Portal
+app.post("/api/chat", async (req, res) => {
+    try {
+        const { query, context } = req.body;
+        const lowerQuery = query.toLowerCase();
+        
+        let aiResponseText = `Namaste! i am here : "${query}".`;
+
+        if (context && context.length > 0) {
+            if (lowerQuery.includes("mehnga") || lowerQuery.includes("expensive") || lowerQuery.includes("highest")) {
+                let mostExpensive = context[0];
+                let maxPrice = -1;
+
+                context.forEach(item => {
+                 
+                    const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+                    if (priceNum > maxPrice) {
+                        maxPrice = priceNum;
+                        mostExpensive = item;
+                    }
+                });
+
+                aiResponseText = `Most expensive property '${mostExpensive.title}' hai, jiska price ${mostExpensive.price} hai!`;
+            } 
+            else if (lowerQuery.includes("low price") || lowerQuery.includes("cheapest")) {
+                let cheapest = context[0];
+                let minPrice = Infinity;
+
+                context.forEach(item => {
+                    const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
+                    if (priceNum > 0 && priceNum < minPrice) {
+                        minPrice = priceNum;
+                        cheapest = item;
+                    }
+                });
+
+                aiResponseText = `Sabse sasti property '${cheapest.title}' hai, jiska price ${cheapest.price} hai!`;
+            } 
+            else {
+                aiResponseText = `Aapke paas total ${context.length} options available hain. Aap inmein se kisi ke baare mein bhi pooch sakte hain!`;
+            }
+        } else {
+            aiResponseText = "Filhal koi listing data available nahi hai.";
+        }
+        
+        res.json({ text: aiResponseText });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ text: "Server error occurred while processing AI request." });
+    }
+});
 app.listen(8080, () => { console.log("Server listening on port 8080"); });
