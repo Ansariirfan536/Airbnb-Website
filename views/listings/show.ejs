@@ -5,17 +5,33 @@
     </div>
 
     <div class="card col-6 offset-3 show-card listing-card">
-        <!-- Base Per Night Price stored safely -->
+        <!-- Core Tokens Required for Computation -->
         <span id="listing-price" style="display:none;"><%= listing.price %></span>
+        <span id="discount-type" style="display:none;"><%= listing.discountType || 'none' %></span>
+        <span id="discount-value" style="display:none;"><%= listing.discountValue || 0 %></span>
+        
         <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image">
         <div class="card-body">
             <p><i>Owned By - <%= listing.owner ? listing.owner.username : "Unknown" %></i></p>
             <p><%= listing.description %></p>
-            <p>₹ <%= listing.price.toLocaleString("en-IN") %> / day</p>
+            
+            <!-- Beautiful Dynamic Inline Pricing Layout -->
+            <p id="listing-display-price-box">
+                <% if(listing.discountType && listing.discountType !== 'none' && listing.discountValue > 0) { %>
+                    <span style="text-decoration: line-through; color: gray;">₹ <%= listing.price.toLocaleString("en-IN") %></span>
+                    <strong style="color: green; margin-left: 10px;">
+                        ₹ <%= Math.round(listing.discountType === 'percentage' ? (listing.price - (listing.price * listing.discountValue / 100)) : (listing.price - listing.discountValue)).toLocaleString("en-IN") %>
+                    </strong> / day
+                    <span class="badge bg-danger ms-2">Sale!</span>
+                <% } else { %>
+                    ₹ <%= listing.price.toLocaleString("en-IN") %> / day
+                <% } %>
+            </p>
+            
             <p><%= listing.location %></p>
             <p><%= listing.country %></p>
 
-            <!-- Calendar Logic with Date Restrictions -->
+            <!-- Calendar Logic Elements -->
             <div class="mb-3">
                 <label>Check-in Date:</label>
                 <input type="date" id="checkIn" class="form-control" required>
@@ -90,19 +106,37 @@
     </div>
 </div>
 
-
  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-    <!-- Red Warning Message Container -->
-
     const checkInInput = document.getElementById("checkIn");
     const checkOutInput = document.getElementById("checkOut");
     const buttonPriceSpan = document.getElementById("button-price");
-    const basePrice = parseFloat(document.getElementById("listing-price").innerText);
     
-    let finalCalculatedPrice = basePrice;
+    // Core Elements fetching standard database states
+    const basePrice = parseFloat(document.getElementById("listing-price").innerText);
+    const dType = document.getElementById("discount-type").innerText.trim();
+    const dVal = parseFloat(document.getElementById("discount-value").innerText) || 0;
+    
+    // Timer controls rules configurations matching 10-hour loops
+    const saleStartDateTime = "2026-08-08T18:44:00"; 
+    const saleDurationHours = 10;                     
+    const startTime = new Date(saleStartDateTime).getTime();
+    const targetEndTime = startTime + (saleDurationHours * 60 * 60 * 1000);
 
-    // Helper to format Date cleanly to YYYY-MM-DD in local time
+    function isSaleCurrentlyActive() {
+        const now = Date.now();
+        return (now >= startTime && now <= targetEndTime && dType !== 'none' && dVal > 0);
+    }
+
+    // Evaluates flat vs percentage dynamic reduction
+    function getDiscountedPricePerDay() {
+        if (!isSaleCurrentlyActive()) return basePrice;
+        let savings = dType === 'percentage' ? basePrice * (dVal / 100) : dVal;
+        return Math.max(0, basePrice - savings);
+    }
+
+    let finalCalculatedPrice = Math.round(getDiscountedPricePerDay());
+
     function getLocalDateString(date) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -110,8 +144,9 @@
         return `${year}-${month}-${day}`;
     }
 
-   
     function updateTotalPrice() {
+        const activePricePerDay = getDiscountedPricePerDay();
+
         if (checkInInput.value && checkOutInput.value) {
             const checkInDate = new Date(checkInInput.value);
             const checkOutDate = new Date(checkOutInput.value);
@@ -120,17 +155,18 @@
                 const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
                 const totalNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-                finalCalculatedPrice = basePrice * totalNights;
+                finalCalculatedPrice = Math.round(activePricePerDay * totalNights);
                 buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN") + ` (${totalNights})`;
                 return;
             }
         }
-        finalCalculatedPrice = basePrice;
-        buttonPriceSpan.innerText = basePrice.toLocaleString("en-IN");
+        finalCalculatedPrice = Math.round(activePricePerDay);
+        buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN");
     }
 
-    
     document.addEventListener("DOMContentLoaded", () => {
+        updateTotalPrice(); // Initial execution setup align pricing right away
+        
         const today = getLocalDateString(new Date());
         checkInInput.min = today;
 
@@ -141,7 +177,6 @@
             const checkInDateVal = checkInInput.value;
             
             if (checkInDateVal) {
-               
                 checkOutInput.removeAttribute("disabled");
                 checkOutInput.disabled = false;
                 
@@ -166,72 +201,115 @@
         checkOutInput.addEventListener("change", updateTotalPrice);
     });
 
-    // Payment Logic 
+    // =========================================================================
+    // 5. SECURE PAYMENT LOGIC (Linked with Razorpay Gateway)
+    // =========================================================================
     document.getElementById('rzp-button').onclick = async function() {
         const checkIn = checkInInput.value;
         const checkOut = checkOutInput.value;
         if(!checkIn || !checkOut) { alert("Please select dates!"); return; }
         
+        // Exact calculated rounded amount variable parameters forward mapping
+        const targetAmount = finalCalculatedPrice;
+
         const response = await fetch("/payment/create-order", { 
             method: "POST", 
             headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({ price: finalCalculatedPrice }) 
+            body: JSON.stringify({ 
+                listingId: "<%= listing._id %>",
+                checkIn: checkIn,
+                checkOut: checkOut,
+                amount: targetAmount 
+            }) 
         });
 
-
+        // Passport Strict Authentication validation capture
         if (response.status === 401) {
             let existingAlert = document.getElementById("temp-red-alert");
             if (!existingAlert) {
                 let alertDiv = document.createElement("div");
                 alertDiv.id = "temp-red-alert";
-                alertDiv.style.cssText = "position: fixed; top: 180px; left: 50%; transform: translateY(-150%); background-color: #dc3545; color: white; padding: 12px 24px; border-radius: 8px; font-weight: bold; z-index: 10000; box-shadow: 0px 4px 10px rgba(0,0,0,0.2);";
+                alertDiv.style.cssText = "position: fixed; top: 180px; left: 50%; transform: translateX(-50%); background-color: #dc3545; color: white; padding: 12px 24px; border-radius: 8px; font-weight: bold; z-index: 10000; box-shadow: 0px 4px 10px rgba(0,0,0,0.2);";
                 alertDiv.innerText = "Please login then book listings!";
                 document.body.appendChild(alertDiv);
             }
-
-            setTimeout(() => {
-                window.location.href = "/login"; 
-            }, 5000);
+            setTimeout(() => { window.location.href = "/login"; }, 5000);
             return; 
         }
-       
 
         const order = await response.json();
+        
+        // Anti-tamper verification check response handler
+        if (order.success === false || !order.id) { 
+            alert(order.message || "Failed to initialize order."); 
+            return; 
+        }
 
+        // Complete accurate Options matrix definition matching Razorpay rules
         const options = {
             "key": "<%= process.env.RAZORPAY_KEY_ID %>",
+            "amount": Math.round(targetAmount * 100), // Perfect conversion to rounded paise configuration
+            "currency": "INR",
             "order_id": order.id,
             "name": "Wanderlust",
+            "description": "Stay Booking Transaction",
             "handler": async function (response) {
                 const emailRes = await fetch("/payment/send-confirmation", { 
-                    method: "POST", headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ paymentId: response.razorpay_payment_id, checkIn, checkOut, listingTitle: "<%= listing.title %>", listingLocation: "<%= listing.location %>" }) 
+                    method: "POST", 
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        paymentId: response.razorpay_payment_id, 
+                        checkIn, 
+                        checkOut, 
+                        listingTitle: "<%= listing.title %>", 
+                        listingLocation: "<%= listing.location %>" 
+                    }) 
                 });
-                if (emailRes.ok) { alert("Payment Success! Confirmation PDF emailed."); window.location.reload(); }
-                else { alert("Payment success, but email failed."); }
+                if (emailRes.ok) { 
+                    alert("Payment Success! Confirmation PDF emailed."); 
+                    window.location.reload(); 
+                } else { 
+                    alert("Payment success, but email failed."); 
+                }
             },
             "theme": { "color": "#d4af37" }
         };
         new Razorpay(options).open();
     };
 
-    // Modal Logic
+    // =========================================================================
+    // 6. SECURITY CAPTCHA MODAL LOGIC (Edit/Delete Verification)
+    // =========================================================================
     let currentAction = "", generatedCode = "";
+    
     function showVerification(action) {
         currentAction = action;
         generatedCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         document.getElementById('verifyModal').style.display = 'flex';
         let ctx = document.getElementById('captchaCanvas').getContext('2d');
-        ctx.clearRect(0, 0, 150, 60); ctx.font = "bold 25px Arial"; ctx.fillText(generatedCode, 25, 40);
+        ctx.clearRect(0, 0, 150, 60); 
+        ctx.font = "bold 25px Arial"; 
+        ctx.fillText(generatedCode, 25, 40);
     }
-    function closeModal() { document.getElementById('verifyModal').style.display = 'none'; }
+    
+    function closeModal() { 
+        document.getElementById('verifyModal').style.display = 'none'; 
+    }
+    
     function checkCode() {
         let userVal = document.getElementById('userInput').value;
         if (userVal.toUpperCase() === generatedCode) {
-            if (currentAction === 'edit') window.location.href = "/listings/<%= listing._id %>/edit";
-            else {
-                let form = document.createElement('form'); form.method = 'POST';form.action = '/listings/<%= listing._id %>?_method=DELETE';document.body.appendChild(form); form.submit();
+            if (currentAction === 'edit') {
+                window.location.href = "/listings/<%= listing._id %>/edit";
+            } else {
+                let form = document.createElement('form'); 
+                form.method = 'POST';
+                form.action = '/listings/<%= listing._id %>?_method=DELETE';
+                document.body.appendChild(form); 
+                form.submit();
             }
-        } else { alert("Wrong Code!"); }
+        } else { 
+            alert("Wrong Code!"); 
+        }
     }
 </script>

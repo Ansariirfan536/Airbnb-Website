@@ -171,8 +171,12 @@
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 mt-3">
   <% for (let listing of allListings){ %>
+
+
     <div class="col mb-4 listing-item" data-country="<%= listing.country %>" data-location="<%= listing.location %>" data-title="<%= listing.title %>">
       <div class="card listing-card h-100">
+
+ 
         <a href="/listings/<%= listing._id%>">
           <img src="<%= listing.image.url%>" class="card-img-top" alt="listing_image" style="height: 20rem; object-fit:cover;" />
         </a>
@@ -310,4 +314,6 @@
 
   //animation start
   window.onload = type;
+
+  
 </script>

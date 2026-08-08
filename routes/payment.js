@@ -4,6 +4,7 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const PDFDocument = require('pdfkit');
 const QRCode = require('qrcode');
+const Listing = require("../models/listing"); // Core Model Schema Import
 
 // Razorpay Instance Setup
 const razorpay = new Razorpay({
@@ -22,14 +23,69 @@ const isLoggedIn = (req, res, next) => {
     next(); 
 };
 
-// 1. Order Create Route (PROTECTED)
+// 1. Order Create Route (PROTECTED WITH BACKEND SECURITY PATCH)
 router.post("/create-order", isLoggedIn, async (req, res) => {
     try {
-        const options = { amount: req.body.price * 100, currency: "INR" };
+        // Frontend fetch se aane wala incoming structured data layout
+        const { listingId, checkIn, checkOut, amount } = req.body;
+
+        // I. Database entry tracking framework
+        const listing = await Listing.findById(listingId);
+        if (!listing) {
+            return res.status(404).json({ success: false, message: "Listing document not found." });
+        }
+
+        // II. Night evaluation matrix calculation
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+        const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
+        const totalNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+        if (totalNights <= 0) {
+            return res.status(400).json({ success: false, message: "Invalid reservation dates range configuration." });
+        }
+
+        // III. SERVER TIME WINDOW VALIDATOR (Matching your current timing setups)
+        const saleStartDateTime = "2026-08-08T17:53:00"; 
+        const saleDurationHours = 10;                     
+        const startTime = new Date(saleStartDateTime).getTime();
+        const targetEndTime = startTime + (saleDurationHours * 60 * 60 * 1000);
+        const now = Date.now();
+
+        let basePricePerDay = listing.price;
+
+        // Check if item qualifies for database model embedded schema discounts matrix
+        if (now >= startTime && now <= targetEndTime && listing.discountType && listing.discountType !== "none" && listing.discountValue > 0) {
+            let savings = 0;
+            if (listing.discountType === "percentage") {
+                savings = listing.price * (listing.discountValue / 100);
+            } else if (listing.discountType === "flat") {
+                savings = listing.discountValue;
+            }
+            basePricePerDay = Math.max(0, listing.price - savings);
+        }
+
+        const serverCalculatedTotal = basePricePerDay * totalNights;
+
+        // IV. ANTI-CHEAT ANTI-MANIPULATION SECURITY AUDIT FILTER
+        if (Math.abs(serverCalculatedTotal - amount) > 1) { // 1 Rs float padding range
+            return res.status(403).json({ 
+                success: false, 
+                message: "Security Protection Warning: Frontend amount tamper breach attempt detected!" 
+            });
+        }
+
+        // V. Verification Pass: Initializing Razorpay transaction setup securely
+        const options = { 
+            amount: Math.round(serverCalculatedTotal * 100), // Convert to paisa format correctly
+            currency: "INR" 
+        };
+        
         const order = await razorpay.orders.create(options);
         res.json(order);
+
     } catch (err) { 
-        res.status(500).send(err); 
+        res.status(500).json({ success: false, error: err.message }); 
     }
 });
 
@@ -61,7 +117,6 @@ router.post("/send-confirmation", isLoggedIn, async (req, res) => {
 
     let qrBuffer;
     try {
-        // 🟩 FIXED LOGIC 1: Real Vercel sub-domain path along with accurate template literals syntax
         const uniqueData = `https://vercel.app{paymentId}&user=${req.user.username}`;
 
         qrBuffer = await QRCode.toBuffer(uniqueData, {
@@ -74,7 +129,6 @@ router.post("/send-confirmation", isLoggedIn, async (req, res) => {
         return res.status(500).json({ error: "QR Code generation failed" });
     }
 
-    // 🟩 FIXED LOGIC 2: Buffer execution layer activated to protect Vercel function invocation collapse
     const doc = new PDFDocument({ 
         margin: 50,
         bufferPages: true 

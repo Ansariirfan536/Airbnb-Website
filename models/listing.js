@@ -37,7 +37,18 @@ image:{
   expiresAt: {
     type: Date,
     default: () => Date.now() + 30*24*60*60*1000 // 30 days validity
-  }
+  },
+
+
+  discountType: { 
+        type: String, 
+        enum: ["percentage", "flat", "none"], 
+        default: "none" 
+    },
+    discountValue: { 
+        type: Number, 
+        default: 0 
+    }
 
 
 });
