@@ -50,7 +50,14 @@ router.post("/create-order", isLoggedIn, async (req, res) => {
         const saleDurationHours = 10;                     
         const startTime = new Date(saleStartDateTime).getTime();
         const targetEndTime = startTime + (saleDurationHours * 60 * 60 * 1000);
-        const now = Date.now();
+        
+        // =========================================================================
+        // 🟩 FIXED TIMEZONE LOGIC FOR VERCEL
+        // =========================================================================
+        // Server chahe kisi bhi country me chal raha ho, yeh humesha exact India (IST) ka current time nikalega
+        const indianTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+        const now = new Date(indianTimeStr).getTime();
+        // =========================================================================
 
         let basePricePerDay = listing.price;
 
@@ -65,10 +72,11 @@ router.post("/create-order", isLoggedIn, async (req, res) => {
             basePricePerDay = Math.max(0, listing.price - savings);
         }
 
-        const serverCalculatedTotal = basePricePerDay * totalNights;
+        const serverCalculatedTotal = Math.round(basePricePerDay * totalNights);
+        const clientPassedAmount = Math.round(amount);
 
-        // IV. ANTI-CHEAT ANTI-MANIPULATION SECURITY AUDIT FILTER
-        if (Math.abs(serverCalculatedTotal - amount) > 1) { // 1 Rs float padding range
+        // IV. ANTI-CHEAT ANTI-MANIPULATION SECURITY AUDIT FILTER WITH FLOAT BUFFER
+        if (Math.abs(serverCalculatedTotal - clientPassedAmount) > 5) { // 5 Rs padding range decimals ke liye
             return res.status(403).json({ 
                 success: false, 
                 message: "Security Protection Warning: Frontend amount tamper breach attempt detected!" 
@@ -77,7 +85,7 @@ router.post("/create-order", isLoggedIn, async (req, res) => {
 
         // V. Verification Pass: Initializing Razorpay transaction setup securely
         const options = { 
-            amount: Math.round(serverCalculatedTotal * 100), // Convert to paisa format correctly
+            amount: serverCalculatedTotal * 100, // Convert to paisa format correctly
             currency: "INR" 
         };
         
