@@ -61,7 +61,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// GLOBAL MIDDLEWARE (Includes IST Timezone Fixed Sale Config)
+// GLOBAL MIDDLEWARE (Global Vercel Sale Fix - No Time Restrictions)
 app.use(async (req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -75,26 +75,18 @@ app.use(async (req, res, next) => {
         res.locals.cart = req.session.cart || [];
         res.locals.cartCount = res.locals.cart.length;
 
-        // 🌟 Exact India (IST) Current Time for Vercel Serverless Reliability
-        const indianTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-        const now = new Date(indianTimeStr).getTime();
-
+        // 🌟 Fetch all sales directly without time restrictions for global server consistency
         const sales = await Sale.find({});
         const salesMap = {};
         
         sales.forEach(sale => {
-            if (sale.saleStartDateTime && sale.saleDurationHours) {
-                let startTime = new Date(sale.saleStartDateTime).getTime();
-                let targetEndTime = startTime + (Number(sale.saleDurationHours) * 60 * 60 * 1000);
-
-                if (now >= startTime && now <= targetEndTime) {
-                    salesMap[sale.listing.toString()] = {
-                        discountType: sale.discountType,
-                        discountValue: sale.discountValue,
-                        saleStartDateTime: sale.saleStartDateTime,
-                        saleDurationHours: sale.saleDurationHours
-                    };
-                }
+            if (sale.listing) {
+                salesMap[sale.listing.toString()] = {
+                    discountType: sale.discountType,
+                    discountValue: sale.discountValue,
+                    saleStartDateTime: sale.saleStartDateTime,
+                    saleDurationHours: sale.saleDurationHours
+                };
             }
         });
 
