@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Aaj ki current date ke hisab se live dynamic timing start sequence
     const saleStartDateTime = "2026-08-08T18:44:00"; 
-    const saleDurationHours = 10;                     
+    const saleDurationHours = 30;                     
 
     // =========================================================================
     // 2. TIMERS & PRICE CALCULATION ENGINE
