@@ -1,16 +1,9 @@
-
 <% layout("/layouts/boilerplate")%>
 
 <% 
     let activeSale = null;
     if (saleConfig && saleConfig.isActive && saleConfig.listingsSaleConfig && saleConfig.listingsSaleConfig[listing._id.toString()]) {
-        let config = saleConfig.listingsSaleConfig[listing._id.toString()];
-        let startTime = new Date(config.saleStartDateTime).getTime();
-        let targetEndTime = startTime + (Number(config.saleDurationHours) * 60 * 60 * 1000);
-        let now = Date.now();
-        if (now >= startTime && now <= targetEndTime) {
-            activeSale = config;
-        }
+        activeSale = saleConfig.listingsSaleConfig[listing._id.toString()];
     }
 
     let discountedPricePerDay = listing.price;
