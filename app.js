@@ -12,6 +12,7 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const Sale = require("./models/sale.js"); // 🌟 Database Sale Model Import
 const paymentRouter = require("./routes/payment.js");
 
 // Routes
@@ -60,7 +61,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// GLOBAL MIDDLEWARE
+// GLOBAL MIDDLEWARE (Includes Database-Driven Sale Config)
 app.use(async (req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -73,8 +74,27 @@ app.use(async (req, res, next) => {
         }
         res.locals.cart = req.session.cart || [];
         res.locals.cartCount = res.locals.cart.length;
+
+        // 🌟 Fetch active sales from Database for frontend & views
+        const sales = await Sale.find({});
+        const salesMap = {};
+        sales.forEach(sale => {
+            salesMap[sale.listing.toString()] = {
+                discountType: sale.discountType,
+                discountValue: sale.discountValue,
+                saleStartDateTime: sale.saleStartDateTime,
+                saleDurationHours: sale.saleDurationHours
+            };
+        });
+
+        res.locals.saleConfig = {
+            isActive: sales.length > 0,
+            listingsSaleConfig: salesMap
+        };
+
         next();
     } catch (err) {
+        res.locals.saleConfig = { isActive: false, listingsSaleConfig: {} };
         next();
     }
 });
@@ -90,6 +110,9 @@ app.use("/cart", cartRouter);
 app.use("/", userRouter);
 app.use("/payment", paymentRouter);
 
+const adminRouter =  require("./routes/admin.js");
+app.use("/admin", adminRouter); 
+
 // AI Chat API Route for Portal
 app.post("/api/chat", async (req, res) => {
     try {
@@ -104,7 +127,6 @@ app.post("/api/chat", async (req, res) => {
                 let maxPrice = -1;
 
                 context.forEach(item => {
-                 
                     const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0;
                     if (priceNum > maxPrice) {
                         maxPrice = priceNum;
@@ -141,4 +163,5 @@ app.post("/api/chat", async (req, res) => {
         res.status(500).json({ text: "Server error occurred while processing AI request." });
     }
 });
+
 app.listen(8080, () => { console.log("Server listening on port 8080"); });

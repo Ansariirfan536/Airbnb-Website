@@ -1,28 +1,44 @@
 <% layout("/layouts/boilerplate")%>
+
+<% 
+    let activeSale = null;
+    if (saleConfig && saleConfig.isActive && saleConfig.listingsSaleConfig && saleConfig.listingsSaleConfig[listing._id.toString()]) {
+        let config = saleConfig.listingsSaleConfig[listing._id.toString()];
+        let startTime = new Date(config.saleStartDateTime).getTime();
+        let targetEndTime = startTime + (Number(config.saleDurationHours) * 60 * 60 * 1000);
+        let now = Date.now();
+        if (now >= startTime && now <= targetEndTime) {
+            activeSale = config;
+        }
+    }
+
+    let discountedPricePerDay = listing.price;
+    if (activeSale) {
+        let savings = activeSale.discountType === 'percentage' ? (listing.price * activeSale.discountValue / 100) : activeSale.discountValue;
+        discountedPricePerDay = Math.max(0, listing.price - savings);
+    }
+%>
+
 <div class="row mt-3">
     <div class="col-8 offset-3">
         <h3><%= listing.title %></h3>
     </div>
 
     <div class="card col-6 offset-3 show-card listing-card">
-        <!-- Core Tokens Required for Computation -->
         <span id="listing-price" style="display:none;"><%= listing.price %></span>
-        <span id="discount-type" style="display:none;"><%= listing.discountType || 'none' %></span>
-        <span id="discount-value" style="display:none;"><%= listing.discountValue || 0 %></span>
         
         <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image">
         <div class="card-body">
             <p><i>Owned By - <%= listing.owner ? listing.owner.username : "Unknown" %></i></p>
             <p><%= listing.description %></p>
             
-            <!-- Beautiful Dynamic Inline Pricing Layout -->
             <p id="listing-display-price-box">
-                <% if(listing.discountType && listing.discountType !== 'none' && listing.discountValue > 0) { %>
+                <% if(activeSale) { %>
                     <span style="text-decoration: line-through; color: gray;">₹ <%= listing.price.toLocaleString("en-IN") %></span>
                     <strong style="color: green; margin-left: 10px;">
-                        ₹ <%= Math.round(listing.discountType === 'percentage' ? (listing.price - (listing.price * listing.discountValue / 100)) : (listing.price - listing.discountValue)).toLocaleString("en-IN") %>
+                        ₹ <%= Math.round(discountedPricePerDay).toLocaleString("en-IN") %>
                     </strong> / day
-                    <span class="badge bg-danger ms-2">Sale!</span>
+                    <span class="badge bg-danger ms-2">Sale! (<%= activeSale.discountType === 'percentage' ? activeSale.discountValue + '%' : '₹' + activeSale.discountValue %> OFF)</span>
                 <% } else { %>
                     ₹ <%= listing.price.toLocaleString("en-IN") %> / day
                 <% } %>
@@ -31,7 +47,6 @@
             <p><%= listing.location %></p>
             <p><%= listing.country %></p>
 
-            <!-- Calendar Logic Elements -->
             <div class="mb-3">
                 <label>Check-in Date:</label>
                 <input type="date" id="checkIn" class="form-control" required>
@@ -44,11 +59,12 @@
             <form method="POST" action="/cart/add/<%= listing._id %>" style="display:inline">
                 <button class="btn btn-primary">Add to Cart</button>
             </form>
-            <button id="rzp-button" class="btn btn-success">Book Now - ₹ <span id="button-price"><%= listing.price.toLocaleString("en-IN") %></span></button>
+            
+            <!-- 🌟 Direct button text without inner span to prevent extension overrides -->
+            <button id="rzp-button" class="btn btn-success">Book Now - ₹ <span id="button-price"><%= Math.round(discountedPricePerDay).toLocaleString("en-IN") %></span></button>
         </div>
     </div>
 
-    <!-- Security Verified Edit/Delete -->
     <% if(currUser && listing.owner && currUser._id.toString() === listing.owner._id.toString()) { %>
     <div class="btns offset-3 mb-3">
         <button type="button" onclick="showVerification('edit')" class="btn btn-dark edit-btn">Edit 📝</button>
@@ -56,7 +72,6 @@
     </div>
     <% } %>
 
-    <!-- Review Section -->
     <div class="col-8 offset-3 mb-3 mt-3">
         <hr>
         <% if(currUser) { %>
@@ -93,7 +108,6 @@
     </div>
 </div>
 
-<!-- Modal (Security) -->
 <div id="verifyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
     <div style="background:#fff; padding:20px; border-radius:12px; width:300px; text-align:center;">
         <h5>Security Verification</h5>
@@ -106,36 +120,14 @@
     </div>
 </div>
 
- <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     const checkInInput = document.getElementById("checkIn");
     const checkOutInput = document.getElementById("checkOut");
     const buttonPriceSpan = document.getElementById("button-price");
     
-    // Core Elements fetching standard database states
-    const basePrice = parseFloat(document.getElementById("listing-price").innerText);
-    const dType = document.getElementById("discount-type").innerText.trim();
-    const dVal = parseFloat(document.getElementById("discount-value").innerText) || 0;
-    
-    // Timer controls rules configurations matching 10-hour loops
-    const saleStartDateTime = "2026-08-08T18:44:00"; 
-    const saleDurationHours = 10;                     
-    const startTime = new Date(saleStartDateTime).getTime();
-    const targetEndTime = startTime + (saleDurationHours * 60 * 60 * 1000);
-
-    function isSaleCurrentlyActive() {
-        const now = Date.now();
-        return (now >= startTime && now <= targetEndTime && dType !== 'none' && dVal > 0);
-    }
-
-    // Evaluates flat vs percentage dynamic reduction
-    function getDiscountedPricePerDay() {
-        if (!isSaleCurrentlyActive()) return basePrice;
-        let savings = dType === 'percentage' ? basePrice * (dVal / 100) : dVal;
-        return Math.max(0, basePrice - savings);
-    }
-
-    let finalCalculatedPrice = Math.round(getDiscountedPricePerDay());
+    const activePricePerDay = <%= Math.round(discountedPricePerDay) %>;
+    let finalCalculatedPrice = Math.round(activePricePerDay);
 
     function getLocalDateString(date) {
         const year = date.getFullYear();
@@ -145,8 +137,6 @@
     }
 
     function updateTotalPrice() {
-        const activePricePerDay = getDiscountedPricePerDay();
-
         if (checkInInput.value && checkOutInput.value) {
             const checkInDate = new Date(checkInInput.value);
             const checkOutDate = new Date(checkOutInput.value);
@@ -156,17 +146,19 @@
                 const totalNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
                 finalCalculatedPrice = Math.round(activePricePerDay * totalNights);
-                buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN") + ` (${totalNights})`;
+                if(buttonPriceSpan) {
+                    buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN") + ` (${totalNights})`;
+                }
                 return;
             }
         }
         finalCalculatedPrice = Math.round(activePricePerDay);
-        buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN");
+        if(buttonPriceSpan) {
+            buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN");
+        }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        updateTotalPrice(); // Initial execution setup align pricing right away
-        
         const today = getLocalDateString(new Date());
         checkInInput.min = today;
 
@@ -201,15 +193,11 @@
         checkOutInput.addEventListener("change", updateTotalPrice);
     });
 
-    // =========================================================================
-    // 5. SECURE PAYMENT LOGIC (Linked with Razorpay Gateway)
-    // =========================================================================
     document.getElementById('rzp-button').onclick = async function() {
         const checkIn = checkInInput.value;
         const checkOut = checkOutInput.value;
         if(!checkIn || !checkOut) { alert("Please select dates!"); return; }
         
-        // Exact calculated rounded amount variable parameters forward mapping
         const targetAmount = finalCalculatedPrice;
 
         const response = await fetch("/payment/create-order", { 
@@ -223,7 +211,6 @@
             }) 
         });
 
-        // Passport Strict Authentication validation capture
         if (response.status === 401) {
             let existingAlert = document.getElementById("temp-red-alert");
             if (!existingAlert) {
@@ -239,16 +226,14 @@
 
         const order = await response.json();
         
-        // Anti-tamper verification check response handler
         if (order.success === false || !order.id) { 
             alert(order.message || "Failed to initialize order."); 
             return; 
         }
 
-        // Complete accurate Options matrix definition matching Razorpay rules
         const options = {
             "key": "<%= process.env.RAZORPAY_KEY_ID %>",
-            "amount": Math.round(targetAmount * 100), // Perfect conversion to rounded paise configuration
+            "amount": Math.round(targetAmount * 100), 
             "currency": "INR",
             "order_id": order.id,
             "name": "Wanderlust",
@@ -277,9 +262,6 @@
         new Razorpay(options).open();
     };
 
-    // =========================================================================
-    // 6. SECURITY CAPTCHA MODAL LOGIC (Edit/Delete Verification)
-    // =========================================================================
     let currentAction = "", generatedCode = "";
     
     function showVerification(action) {

@@ -33,7 +33,14 @@ module.exports.index = async (req, res) => {
       ];
     }
     const allListings = await Listing.find(filter);
-    res.render("listings/index.ejs", { allListings, country: term || '', searchCount: allListings.length, searched });
+    
+    // 🌟 saleConfig removed from here because app.js global middleware handles it automatically via res.locals
+    res.render("listings/index.ejs", { 
+      allListings, 
+      country: term || '', 
+      searchCount: allListings.length, 
+      searched 
+    });
   } catch (err) {
     console.error('Error in listings.index:', err);
     throw err;
@@ -57,6 +64,8 @@ module.exports.showListing = async (req, res) => {
     req.flash("error", "Listing does not exist!");
     return res.redirect("/listings");
   }
+
+  // 🌟 saleConfig removed from here as well
   res.render("listings/show.ejs", { listing });
 };
 

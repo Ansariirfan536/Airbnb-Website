@@ -1,0 +1,56 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="row mt-3">
+    <div class="col-8 offset-2">
+        <h3 class="mb-3">✨ Create or Update Listing Sale</h3>
+        
+        <form method="POST" action="/admin/sale" class="needs-validation" novalidate>
+            
+            <!-- Listing Selection Dropdown -->
+            <div class="mb-3">
+                <label for="listingId" class="form-label">Select Listing</label>
+                <select name="listingId" id="listingId" class="form-select" required>
+                    <option value="" disabled selected>Choose a listing...</option>
+                    <% if (typeof allListings !== 'undefined' && allListings.length > 0) { %>
+                        <% allListings.forEach(listing => { %>
+                            <option value="<%= listing._id %>"><%= listing.title %> (₹<%= listing.price %>)</option>
+                        <% }) %>
+                    <% } %>
+                </select>
+                <div class="invalid-feedback">Please select a listing.</div>
+            </div>
+
+            <!-- Discount Type -->
+            <div class="mb-3">
+                <label for="discountType" class="form-label">Discount Type</label>
+                <select name="discountType" id="discountType" class="form-select" required>
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="flat">Flat Amount (₹)</option>
+                </select>
+            </div>
+
+            <!-- Discount Value -->
+            <div class="mb-3">
+                <label for="discountValue" class="form-label">Discount Value (e.g. 10 for 10% or 500 for ₹500)</label>
+                <input type="number" name="discountValue" class="form-control" required min="1">
+                <div class="invalid-feedback">Please enter a valid discount value.</div>
+            </div>
+
+            <!-- Sale Start Date & Time -->
+            <div class="mb-3">
+                <label for="saleStartDateTime" class="form-label">Sale Start Date & Time</label>
+                <input type="datetime-local" name="saleStartDateTime" class="form-control" required>
+                <div class="invalid-feedback">Please select start time.</div>
+            </div>
+
+            <!-- Sale Duration in Hours -->
+            <div class="mb-3">
+                <label for="saleDurationHours" class="form-label">Sale Duration (in Hours)</label>
+                <input type="number" name="saleDurationHours" class="form-control" required min="1" value="24">
+                <div class="invalid-feedback">Please enter duration hours.</div>
+            </div>
+
+            <button type="submit" class="btn btn-dark mb-4">Launch Sale 🚀</button>
+        </form>
+    </div>
+</div>

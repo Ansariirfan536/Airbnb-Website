@@ -1,29 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    // =========================================================================
-    // 1. HARDCODED CONFIGURATION (Aapki perfect chalne wali settings)
-    // =========================================================================
-    const itemsOnSale = [
-        "69ad64276bbf82a43be76746", // Kashmir Stay ID
-        "69ad65f66bbf82a43be76768"  // forest resty ID
-    ];
+    // 🌟 Backend se EJS ke through aane wala global config use hoga
+    const saleConfigMaster = window.backendSaleConfig || { isActive: false, listingsSaleConfig: {} };
 
-    const discountType = "percentage"; 
-    const discountValue = 10;          // 10% Discount
+    function getListingSaleConfig(listingId) {
+        if (!saleConfigMaster.isActive) return null;
+        const config = saleConfigMaster.listingsSaleConfig[listingId];
+        if (!config) return null;
 
-    // Aaj ki current date ke hisab se live dynamic timing start sequence
-    const saleStartDateTime = "2026-08-08T18:44:00"; 
-    const saleDurationHours = 30;                     
-
-    // =========================================================================
-    // 2. TIMERS & PRICE CALCULATION ENGINE
-    // =========================================================================
-    const startTime = new Date(saleStartDateTime).getTime();
-    const targetEndTime = startTime + (saleDurationHours * 60 * 60 * 1000);
-
-    function isSaleCurrentlyActive() {
+        // 🌟 Robust date parsing to handle timezone issues correctly
+        const startTime = new Date(config.saleStartDateTime).getTime();
+        const targetEndTime = startTime + (Number(config.saleDurationHours) * 60 * 60 * 1000);
         const now = Date.now();
-        return (now >= startTime && now <= targetEndTime);
+
+        // Debugging ke liye console mein check kar sakte hain
+        console.log(`Listing ID: ${listingId} | Now: ${now} | Start: ${startTime} | End: ${targetEndTime} | Active: ${now >= startTime && now <= targetEndTime}`);
+
+        if (now >= startTime && now <= targetEndTime) {
+            return { ...config, targetEndTime };
+        }
+        return null;
     }
 
     const checkInInput = document.getElementById("checkIn");
@@ -32,21 +28,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const basePriceElement = document.getElementById("listing-price");
 
     const basePrice = basePriceElement ? parseFloat(basePriceElement.innerText) : 0;
-    
-    // Global dynamic currency state register tracker
     window.finalCalculatedPrice = Math.round(basePrice);
 
-    function calculateDiscount(price) {
-        if (!isSaleCurrentlyActive() || price <= 0) return price;
-        let savings = discountType === 'percentage' ? price * (discountValue / 100) : discountValue;
+    function getCurrentListingIdFromShowPage() {
+        const cartForm = document.querySelector("form[action*='/cart/add/']");
+        if (!cartForm) return null;
+        const actionUrl = cartForm.getAttribute("action").split("?");
+        return actionUrl[0].split("/").pop().trim();
+    }
+
+    const currentListingId = getCurrentListingIdFromShowPage();
+    const activeItemConfig = currentListingId ? getListingSaleConfig(currentListingId) : null;
+
+    function calculateDiscount(price, config) {
+        if (!config || price <= 0) return price;
+        let savings = config.discountType === 'percentage' ? price * (config.discountValue / 100) : config.discountValue;
         return Math.max(0, price - savings);
     }
 
-    const badgeLabel = discountType === "percentage" ? `${discountValue}% OFF` : `₹${discountValue} OFF`;
+    const badgeLabel = activeItemConfig ? (activeItemConfig.discountType === "percentage" ? `${activeItemConfig.discountValue}% OFF` : `₹${activeItemConfig.discountValue} OFF`) : "";
 
     // FRONT PAGE OVERLAY BADGE
     function applyDiscountsAndTimersToFrontPage() {
-        if (!isSaleCurrentlyActive() || itemsOnSale.length === 0) return;
+        if (!saleConfigMaster.isActive) return;
 
         const allLinks = document.querySelectorAll("a");
         allLinks.forEach(link => {
@@ -57,18 +61,22 @@ document.addEventListener("DOMContentLoaded", () => {
             const pathSegments = parts[0].split("/");
             const listingId = pathSegments.filter(p => p.trim().length > 0).pop().trim();
 
-            if (itemsOnSale.includes(listingId)) {
+            const itemConfig = getListingSaleConfig(listingId);
+            if (itemConfig) {
                 const cardImg = link.querySelector(".card-img-top, img");
                 if (cardImg && !link.querySelector('.sale-ribbon-tag')) {
                     const parentDiv = cardImg.parentElement;
                     if (parentDiv) parentDiv.style.position = "relative";
 
+                    const itemBadgeLabel = itemConfig.discountType === "percentage" ? `${itemConfig.discountValue}% OFF` : `₹${itemConfig.discountValue} OFF`;
+
                     const badgeContainer = document.createElement("div");
                     badgeContainer.className = "sale-ribbon-tag";
+                    badgeContainer.dataset.endtime = itemConfig.targetEndTime;
                     badgeContainer.style.cssText = "position: absolute; top: 15px; left: 15px; background-color: rgba(230, 57, 70, 0.95); color: #ffffff; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 2px;";
 
                     badgeContainer.innerHTML = `
-                        <div>💥 SALE ${badgeLabel}</div>
+                        <div>💥 SALE ${itemBadgeLabel}</div>
                         <div class="sale-countdown-clock" style="font-size: 10px; color: #ffe3e3; font-family: monospace;">Loading...</div>
                     `;
                     if (parentDiv) parentDiv.appendChild(badgeContainer);
@@ -76,46 +84,37 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        const clockElements = document.querySelectorAll(".sale-countdown-clock");
-        if (clockElements.length === 0) return;
+        const ribbonTags = document.querySelectorAll(".sale-ribbon-tag");
+        if (ribbonTags.length === 0) return;
 
         const timerInterval = setInterval(() => {
             const now = Date.now();
-            const timeRemaining = targetEndTime - now;
+            ribbonTags.forEach(tag => {
+                const targetEndTime = parseInt(tag.dataset.endtime);
+                const timeRemaining = targetEndTime - now;
+                const clock = tag.querySelector(".sale-countdown-clock");
 
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                document.querySelectorAll(".sale-ribbon-tag").forEach(el => el.remove());
-                return;
-            }
+                if (timeRemaining <= 0) {
+                    tag.remove();
+                    return;
+                }
 
-            const hours = String(Math.floor((timeRemaining / (1000 * 60 * 60)) % 24)).padStart(2, '0');
-            const minutes = String(Math.floor((timeRemaining / (1000 * 60)) % 60)).padStart(2, '0');
-            const seconds = String(Math.floor((timeRemaining / 1000) % 60)).padStart(2, '0');
+                const hours = String(Math.floor((timeRemaining / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+                const minutes = String(Math.floor((timeRemaining / (1000 * 60)) % 60)).padStart(2, '0');
+                const seconds = String(Math.floor((timeRemaining / 1000) % 60)).padStart(2, '0');
 
-            clockElements.forEach(clock => {
-                clock.innerText = `⏱ ${hours}h ${minutes}m ${seconds}s`;
+                if (clock) {
+                    clock.innerText = `⏱ ${hours}h ${minutes}m ${seconds}s`;
+                }
             });
         }, 1000);
     }
 
     // SHOW PAGE CONTROLLER DECORATION
-    function getCurrentListingIdFromShowPage() {
-        const cartForm = document.querySelector("form[action*='/cart/add/']");
-        if (!cartForm) return null;
-        const actionUrl = cartForm.getAttribute("action").split("?");
-        return actionUrl[0].split("/").pop().trim();
-    }
-
-    function isCurrentItemOnSale() {
-        const currentId = getCurrentListingIdFromShowPage();
-        return currentId ? (itemsOnSale.includes(currentId) && isSaleCurrentlyActive()) : false;
-    }
-
     function applyDiscountToShowPageUI() {
-        if (!isCurrentItemOnSale() || basePrice <= 0) return;
+        if (!activeItemConfig || basePrice <= 0) return;
 
-        const pricePerDay = calculateDiscount(basePrice);
+        const pricePerDay = calculateDiscount(basePrice, activeItemConfig);
         const paragraphs = document.querySelectorAll("p");
         
         paragraphs.forEach(p => {
@@ -139,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function updateShowPageTotalPrice() {
-        const pricePerDay = isCurrentItemOnSale() ? calculateDiscount(basePrice) : basePrice;
+        const pricePerDay = activeItemConfig ? calculateDiscount(basePrice, activeItemConfig) : basePrice;
 
         if (checkInInput && checkOutInput && checkInInput.value && checkOutInput.value) {
             const checkInDate = new Date(checkInInput.value);
@@ -166,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const todayStr = getLocalDateString(new Date());
         checkInInput.min = todayStr;
 
-        const handleCheckInChange = () => {
+        const emptyCheckInHandler = () => {
             if (checkInInput.value) {
                 checkOutInput.removeAttribute("disabled");
                 checkOutInput.disabled = false;
@@ -186,8 +185,8 @@ document.addEventListener("DOMContentLoaded", () => {
             updateShowPageTotalPrice();
         };
 
-        checkInInput.addEventListener("input", handleCheckInChange);
-        checkInInput.addEventListener("change", handleCheckInChange);
+        checkInInput.addEventListener("input", emptyCheckInHandler);
+        checkInInput.addEventListener("change", emptyCheckInHandler);
         checkOutInput.addEventListener("change", updateShowPageTotalPrice);
     }
 });
