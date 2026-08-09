@@ -12,10 +12,9 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
-const Sale = require("./models/sale.js"); // 🌟 Database Sale Model Import
+const Sale = require("./models/sale.js");
 const paymentRouter = require("./routes/payment.js");
 
-// Routes
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
@@ -23,7 +22,6 @@ const cartRouter = require("./routes/cart.js");
 
 const dbUrl = process.env.ATLASDB_URL;
 
-// Nodemailer Config
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -61,7 +59,6 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// GLOBAL MIDDLEWARE (Includes Database-Driven Direct Sale Config)
 app.use(async (req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -75,7 +72,6 @@ app.use(async (req, res, next) => {
         res.locals.cart = req.session.cart || [];
         res.locals.cartCount = res.locals.cart.length;
 
-        // 🌟 Fetch sales from Database directly without strict time restriction for cloud reliability
         const sales = await Sale.find({});
         const salesMap = {};
 
@@ -102,7 +98,6 @@ app.use(async (req, res, next) => {
     }
 });
 
-// Root route (Home page)
 app.get("/", (req, res) => {
     res.redirect("/listings"); 
 });
@@ -116,7 +111,6 @@ app.use("/payment", paymentRouter);
 const adminRouter =  require("./routes/admin.js");
 app.use("/admin", adminRouter); 
 
-// AI Chat API Route for Portal
 app.post("/api/chat", async (req, res) => {
     try {
         const { query, context } = req.body;
