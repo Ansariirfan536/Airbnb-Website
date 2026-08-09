@@ -1,3 +1,4 @@
+
 <% layout("/layouts/boilerplate")%>
 
 <% 
@@ -60,7 +61,6 @@
                 <button class="btn btn-primary">Add to Cart</button>
             </form>
             
-            <!-- 🌟 Direct button text without inner span to prevent extension overrides -->
             <button id="rzp-button" class="btn btn-success">Book Now - ₹ <span id="button-price"><%= Math.round(discountedPricePerDay).toLocaleString("en-IN") %></span></button>
         </div>
     </div>
@@ -126,8 +126,8 @@
     const checkOutInput = document.getElementById("checkOut");
     const buttonPriceSpan = document.getElementById("button-price");
     
-    const activePricePerDay = <%= Math.round(discountedPricePerDay) %>;
-    let finalCalculatedPrice = Math.round(activePricePerDay);
+    const activePricePerDay = Number("<%= Math.round(discountedPricePerDay) %>");
+    let finalCalculatedPrice = activePricePerDay;
 
     function getLocalDateString(date) {
         const year = date.getFullYear();
@@ -138,21 +138,24 @@
 
     function updateTotalPrice() {
         if (checkInInput.value && checkOutInput.value) {
-            const checkInDate = new Date(checkInInput.value);
-            const checkOutDate = new Date(checkOutInput.value);
+            const [inYear, inMonth, inDay] = checkInInput.value.split('-').map(Number);
+            const [outYear, outMonth, outDay] = checkOutInput.value.split('-').map(Number);
 
-            if (checkOutDate > checkInDate) {
-                const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
-                const totalNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            const checkInDate = new Date(inYear, inMonth - 1, inDay);
+            const checkOutDate = new Date(outYear, outMonth - 1, outDay);
 
-                finalCalculatedPrice = Math.round(activePricePerDay * totalNights);
+            const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
+            const totalNights = Math.round(timeDiff / (1000 * 3600 * 24));
+
+            if (totalNights > 0) {
+                finalCalculatedPrice = activePricePerDay * totalNights;
                 if(buttonPriceSpan) {
-                    buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN") + ` (${totalNights})`;
+                    buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN") + ` (${totalNights} nights)`;
                 }
                 return;
             }
         }
-        finalCalculatedPrice = Math.round(activePricePerDay);
+        finalCalculatedPrice = activePricePerDay;
         if(buttonPriceSpan) {
             buttonPriceSpan.innerText = finalCalculatedPrice.toLocaleString("en-IN");
         }
@@ -161,34 +164,28 @@
     document.addEventListener("DOMContentLoaded", () => {
         const today = getLocalDateString(new Date());
         checkInInput.min = today;
+        updateTotalPrice();
 
-        checkInInput.addEventListener("input", handleCheckInChange);
-        checkInInput.addEventListener("change", handleCheckInChange);
-
-        function handleCheckInChange() {
-            const checkInDateVal = checkInInput.value;
-            
-            if (checkInDateVal) {
+        checkInInput.addEventListener("change", () => {
+            const checkInVal = checkInInput.value;
+            if (checkInVal) {
                 checkOutInput.removeAttribute("disabled");
                 checkOutInput.disabled = false;
+
+                const [y, m, d] = checkInVal.split('-').map(Number);
+                const nextDay = new Date(y, m - 1, d + 1);
+                checkOutInput.min = getLocalDateString(nextDay);
                 
-                const nextDay = new Date(checkInDateVal);
-                nextDay.setDate(nextDay.getDate() + 1);
-                
-                const minCheckoutStr = getLocalDateString(nextDay);
-                checkOutInput.min = minCheckoutStr;
-                
-                if (checkOutInput.value && checkOutInput.value <= checkInDateVal) {
+                if (checkOutInput.value && checkOutInput.value <= checkInVal) {
                     checkOutInput.value = "";
                 }
-                updateTotalPrice();
             } else {
                 checkOutInput.setAttribute("disabled", "true");
                 checkOutInput.disabled = true;
                 checkOutInput.value = "";
-                updateTotalPrice();
             }
-        }
+            updateTotalPrice();
+        });
 
         checkOutInput.addEventListener("change", updateTotalPrice);
     });

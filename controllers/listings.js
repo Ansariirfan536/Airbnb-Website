@@ -1,4 +1,5 @@
 const Listing = require("../models/listing");
+const Sale = require("../models/sale");
 
 // Alias map for search
 const aliases = {
@@ -34,7 +35,6 @@ module.exports.index = async (req, res) => {
     }
     const allListings = await Listing.find(filter);
     
-    // 🌟 saleConfig removed from here because app.js global middleware handles it automatically via res.locals
     res.render("listings/index.ejs", { 
       allListings, 
       country: term || '', 
@@ -58,15 +58,37 @@ module.exports.showListing = async (req, res) => {
       path: "reviews",
       populate: { path: "author" },
     })
-    .populate("owner"); // Yeh owner populate hona zaroori hai button ke liye
+    .populate("owner");
 
   if (!listing) {
     req.flash("error", "Listing does not exist!");
     return res.redirect("/listings");
   }
 
-  // 🌟 saleConfig removed from here as well
-  res.render("listings/show.ejs", { listing });
+  // 🔥 Direct Database se is listing ke liye active sale fetch karein taaki koi error na aaye
+  let saleConfig = res.locals.saleConfig;
+  if (!saleConfig || !saleConfig.isActive) {
+    try {
+      const sales = await Sale.find({});
+      const salesMap = {};
+      sales.forEach(sale => {
+        salesMap[sale.listing.toString()] = {
+          discountType: sale.discountType,
+          discountValue: sale.discountValue,
+          saleStartDateTime: sale.saleStartDateTime,
+          saleDurationHours: sale.saleDurationHours
+        };
+      });
+      saleConfig = {
+        isActive: sales.length > 0,
+        listingsSaleConfig: salesMap
+      };
+    } catch (e) {
+      saleConfig = { isActive: false, listingsSaleConfig: {} };
+    }
+  }
+
+  res.render("listings/show.ejs", { listing, saleConfig });
 };
 
 module.exports.createListing = async (req, res, next) => {
@@ -96,7 +118,6 @@ module.exports.updateListing = async (req, res) => {
   let { id } = req.params;
   let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
 
-  // Agar user ne nayi photo upload ki hai
   if (req.file) {
     let url = req.file.path;
     let filename = req.file.filename;

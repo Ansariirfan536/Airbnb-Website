@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     badgeContainer.style.cssText = "position: absolute; top: 15px; left: 15px; background-color: rgba(230, 57, 70, 0.95); color: #ffffff; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 2px;";
 
                     badgeContainer.innerHTML = `
-                        <div>💥 SALE ${itemBadgeLabel}</div>
+                        <div>💥<i>Discount</i>.. ${itemBadgeLabel}</div>
                         <div class="sale-countdown-clock" style="font-size: 10px; color: #ffe3e3; font-family: monospace;">Loading...</div>
                     `;
                     if (parentDiv) parentDiv.appendChild(badgeContainer);
