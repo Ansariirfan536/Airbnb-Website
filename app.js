@@ -61,7 +61,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// GLOBAL MIDDLEWARE (Includes Database-Driven Sale Config with Time Validation)
+// GLOBAL MIDDLEWARE (Includes Database-Driven Direct Sale Config)
 app.use(async (req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -75,27 +75,18 @@ app.use(async (req, res, next) => {
         res.locals.cart = req.session.cart || [];
         res.locals.cartCount = res.locals.cart.length;
 
-        // 🌟 Fetch active sales from Database and validate active time window
+        // 🌟 Fetch sales from Database directly without strict time restriction for cloud reliability
         const sales = await Sale.find({});
         const salesMap = {};
-        
-        // Current time with IST offset safety for cloud servers (like Vercel UTC)
-        const nowTime = new Date().getTime();
 
         sales.forEach(sale => {
-            if (sale.saleStartDateTime && sale.saleDurationHours) {
-                let startTime = new Date(sale.saleStartDateTime).getTime();
-                let endTime = startTime + (Number(sale.saleDurationHours) * 60 * 60 * 1000);
-
-                // Check if current time falls strictly within the sale window
-                if (nowTime >= startTime && nowTime <= endTime) {
-                    salesMap[sale.listing.toString()] = {
-                        discountType: sale.discountType,
-                        discountValue: sale.discountValue,
-                        saleStartDateTime: sale.saleStartDateTime,
-                        saleDurationHours: sale.saleDurationHours
-                    };
-                }
+            if (sale.listing) {
+                salesMap[sale.listing.toString()] = {
+                    discountType: sale.discountType,
+                    discountValue: sale.discountValue,
+                    saleStartDateTime: sale.saleStartDateTime,
+                    saleDurationHours: sale.saleDurationHours
+                };
             }
         });
 
