@@ -32,7 +32,7 @@
                     <strong style="color: green; margin-left: 10px;">
                         ₹ <%= Math.round(discountedPricePerDay).toLocaleString("en-IN") %>
                     </strong> / day
-                    <span class="badge bg-danger ms-2">Sale! (<%= activeSale.discountType === 'percentage' ? activeSale.discountValue + '%' : '₹' + activeSale.discountValue %> OFF)</span>
+                    <span class="badge bg-danger ms-2">Discount  (<%= activeSale.discountType === 'percentage' ? activeSale.discountValue + '%' : '₹' + activeSale.discountValue %> OFF)</span>
                 <% } else { %>
                     ₹ <%= listing.price.toLocaleString("en-IN") %> / day
                 <% } %>
