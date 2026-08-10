@@ -8,3 +8,6 @@ Node.js, Express and MongoDB
 ## I use gemini api to fetch a real DataBase and give a real response but still working nowdays and complete this features some days....
 ## Live link:
 https://airbnb-website-n522.vercel.app/listings
+
+# If add a direct discounts in a specific items for a specific times then visit the link :
+https://airbnb-website-n522.vercel.app/admin/sale/new
