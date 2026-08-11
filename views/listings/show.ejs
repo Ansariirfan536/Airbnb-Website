@@ -3,7 +3,19 @@
 <% 
     let activeSale = null;
     if (saleConfig && saleConfig.isActive && saleConfig.listingsSaleConfig && saleConfig.listingsSaleConfig[listing._id.toString()]) {
-        activeSale = saleConfig.listingsSaleConfig[listing._id.toString()];
+        let config = saleConfig.listingsSaleConfig[listing._id.toString()];
+        
+        // Exact IST current time calculation for server-side verification
+        let indianTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+        let now = new Date(indianTimeStr).getTime();
+
+        let startTime = new Date(config.saleStartDateTime).getTime();
+        let targetEndTime = startTime + (Number(config.saleDurationHours) * 60 * 60 * 1000);
+
+        // Sirf tabhi active maano jab current time start aur end ke beech mein ho
+        if (now >= startTime && now <= targetEndTime) {
+            activeSale = config;
+        }
     }
 
     let discountedPricePerDay = listing.price;
@@ -285,4 +297,3 @@
         }
     }
 </script>
-
