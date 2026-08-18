@@ -1,4 +1,3 @@
-
 (() => {
     'use strict'
     const forms = document.querySelectorAll('.needs-validation')
@@ -23,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const avatarPane = document.getElementById("avatar-image-pane");
     const statusLabel = document.getElementById("voice-status-label");
 
-   
     if (trigger && portal) {
         trigger.addEventListener("click", () => portal.classList.add("active"));
     }
@@ -42,9 +40,25 @@ document.addEventListener("DOMContentLoaded", () => {
         window.speechSynthesis.cancel();
         
         let cleanTxt = textToSpeak.replace(/<\/?[^>]+(>|$)/g, " ");
+        cleanTxt = cleanTxt.replace(/View Property Details/gi, "");
+
         const speechUtterance = new SpeechSynthesisUtterance(cleanTxt);
         speechUtterance.lang = /^[a-zA-Z0-9\s,.:?'-]+$/.test(originalUserQuery) ? "en-IN" : "hi-IN";
         
+        const availableVoices = window.speechSynthesis.getVoices();
+        const maleVoice = availableVoices.find(
+            (v) =>
+                v.lang.includes(speechUtterance.lang) &&
+                (v.name.toLowerCase().includes("male") ||
+                 v.name.toLowerCase().includes("google") ||
+                 v.name.toLowerCase().includes("ravi") ||
+                 v.name.toLowerCase().includes("david"))
+        );
+
+        if (maleVoice) speechUtterance.voice = maleVoice;
+        speechUtterance.rate = 1.05;
+        speechUtterance.pitch = 0.95;
+
         speechUtterance.onstart = () => {
             if (avatarPane) avatarPane.classList.add("speaking");
             if (statusLabel) statusLabel.innerText = "Irfan's AI is speaking...";
@@ -67,33 +81,33 @@ document.addEventListener("DOMContentLoaded", () => {
         uBubble.innerText = queryText;
         chatBody.appendChild(uBubble);
         chatInput.value = "";
+        chatBody.scrollTop = chatBody.scrollHeight;
         
         const lBubble = document.createElement("div");
         lBubble.className = "portal-bubble bot-p";
-        lBubble.innerHTML = "<i>Analyzing listings...</i>";
+        lBubble.innerHTML = "<i>Database se real properties search ki ja rahi hain...</i>";
         chatBody.appendChild(lBubble);
-
-        const activeCards = Array.from(document.querySelectorAll('.card, .listing-item'));
-        const catalogContext = activeCards.map(c => ({
-            title: c.querySelector('.card-title')?.innerText || 'Stay',
-            price: c.querySelector('.card-text')?.innerText || 'Price info',
-            href: c.querySelector('a')?.href || '#'
-        }));
+        chatBody.scrollTop = chatBody.scrollHeight;
 
         try {
-            const response = await fetch('/api/chat', {
+            // Backend DB-driven Gemini proxy endpoint
+            const response = await fetch('/api/gemini-chat', {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query: queryText, context: catalogContext })
+                body: JSON.stringify({ queryText })
             });
 
             if (!response.ok) throw new Error("Network response was not ok");
 
             const data = await response.json();
-            lBubble.innerHTML = data.text ? data.text.replace(/\n/g, "<br>") : "No response text.";
-            speakAILine(lBubble.innerText, queryText);
+            let responseContent = data.response || "No response received.";
+            responseContent = responseContent.replace(/\n/g, "<br>");
+            
+            lBubble.innerHTML = responseContent;
+            speakAILine(responseContent, queryText);
         } catch (error) {
-            lBubble.innerText = "Server connection error.";
+            lBubble.innerText = "Arre yaar, server connection mein thoda issue aa gaya. Dubara try karo!";
+            speakAILine(lBubble.innerText, queryText);
         }
         chatBody.scrollTop = chatBody.scrollHeight;
     }
