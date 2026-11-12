@@ -1,0 +1,10 @@
+services:
+  wanderlust-web:
+    build: .
+    image: ansariirfan/wanderlust:v1.0
+    container_name: wanderlust-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    restart: unless-stopped

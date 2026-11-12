@@ -13,3 +13,12 @@ https://airbnb-website-n522.vercel.app/listings
 but sometimes updation takes a long times then can check a few hours later and verify. Thanks
 
 https://airbnb-website-n522.vercel.app/admin/sale/new
+
+## Run with Docker
+
+Build the image and run the app, passing your local environment variables at runtime:
+
+```sh
+docker build -t majorproject .
+docker run --env-file .env -p 8080:8080 majorproject
+```
